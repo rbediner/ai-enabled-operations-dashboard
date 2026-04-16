@@ -1,29 +1,63 @@
-/* D1-D4 — Demand signal strip
-   States: D1 green-stable, D2 green-stable, D3 pressure, D4 green-stable */
+import LiveFlipTile from './LiveFlipTile';
 
 const stateMap = {
-  green:  'rt-green  tile-stable tile-green',
+  green: 'rt-green tile-stable tile-green',
   yellow: 'rt-pressure tile-pressure',
-  red:    'rt-critical tile-critical',
-  slate:  'rt-stable tile-stable',
+  red: 'rt-critical tile-critical',
+  slate: 'rt-stable tile-stable',
 };
 
-function LeftRail({ metrics }) {
+function renderTileFace(item, face = 'front') {
+  const backFace = item.flipBack ?? {};
+  const value = face === 'back' ? (backFace.value ?? item.value) : item.value;
+  const status = face === 'back' ? (backFace.status ?? item.status) : item.status;
+
+  return (
+    <>
+      <span className="rail-tile__value">{value}</span>
+      <span className="rail-tile__label">{item.label}</span>
+      {status && (
+        <span className="rail-tile__status">{status}</span>
+      )}
+    </>
+  );
+}
+
+function LeftRail({ metrics, liveSignalId, flipStates, onManualFlip, onFlipHover, presentationMode }) {
   return (
     <div className="column-rail">
       {metrics.map((item) => {
         const sc = stateMap[item.state] ?? 'rt-stable tile-stable';
+        const liveCls = item.id === liveSignalId ? ' live-region-active' : '';
+        const className = `rail-tile ${sc}${liveCls}`;
+
+        if (item.flipBack) {
+          return (
+            <LiveFlipTile
+              key={item.id}
+              tileId={item.id}
+              className={className}
+              liveRegion={item.id === liveSignalId ? 'left' : 'idle'}
+              isFlipped={Boolean(flipStates[item.id])}
+              isInteractive={!presentationMode}
+              presentationMode={presentationMode}
+              onClick={() => onManualFlip(item.id)}
+              onPointerEnter={() => onFlipHover(item.id, true)}
+              onPointerLeave={() => onFlipHover(item.id, false)}
+              renderFront={() => renderTileFace(item, 'front')}
+              renderBack={() => renderTileFace(item, 'back')}
+            />
+          );
+        }
+
         return (
           <div
             key={item.id}
-            className={`rail-tile ${sc}`}
+            className={className}
             data-box-id={item.id}
+            data-live-region={item.id === liveSignalId ? 'left' : 'idle'}
           >
-            <span className="rail-tile__label">{item.label}</span>
-            <span className="rail-tile__value">{item.value}</span>
-            {item.status && (
-              <span className="rail-tile__status">{item.status}</span>
-            )}
+            {renderTileFace(item, 'front')}
           </div>
         );
       })}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import BottomControlStrip from './components/BottomControlStrip';
 import CenterViewTabs from './components/CenterViewTabs';
 import HeroMarginDial from './components/HeroMarginDial';
@@ -7,57 +7,328 @@ import LeftStack from './components/LeftStack';
 import RightRail from './components/RightRail';
 import RightStack from './components/RightStack';
 import TopStatusBar from './components/TopStatusBar';
+import { lensTabs } from './data/dashboardData';
 import {
-  bottomStrip,
-  centerViews,
-  leftRailMetrics,
-  leftStackMetrics,
-  lensTabs,
-  rightRailMetrics,
-  rightStackMetrics,
-  statusCards,
-} from './data/dashboardData';
-
-const freshnessLoop = [7, 6, 7, 8, 7, 6];
+  applyActiveTabSnapshot,
+  applyScheduledTileUpdate,
+  buildSimulatedDashboard,
+  detectPriorityOverride,
+  FLIP_DWELL_MS,
+  FOCUS_NOW_ROTATE_MS,
+  getAutoFlipInterval,
+  getAutoFlipTargetId,
+  getFreshnessMinutes,
+  getFocusSequenceCount,
+  getScenarioFrameCount,
+  getVisualCadenceSlot,
+  INITIAL_NOW,
+  OVERRIDE_HOLD_MS,
+  OVERRIDE_WINDOW_MS,
+  SIMULATED_RECOMPUTE_MS,
+  VISUAL_CADENCE_MS,
+  hasTileChanged,
+  isFlipEligible,
+} from './live/dashboardLiveModel.js';
 
 function App() {
-  const [now, setNow] = useState(new Date('2026-04-15T17:09:00'));
+  const initialTimestamp = new Date(INITIAL_NOW).getTime();
   const [activeTab, setActiveTab] = useState('M1');
-  const [motionStep, setMotionStep] = useState(0);
-  const activeView = centerViews[activeTab] ?? centerViews.M1;
+  const [clockNow, setClockNow] = useState(() => new Date(INITIAL_NOW));
+  const [lastRefreshMs, setLastRefreshMs] = useState(initialTimestamp);
+  const [scenarioStep, setScenarioStep] = useState(0);
+  const [focusStep, setFocusStep] = useState(0);
+  const [visualStep, setVisualStep] = useState(-1);
+  const [presentationMode, setPresentationMode] = useState(false);
+  const [displayDashboard, setDisplayDashboard] = useState(() => buildSimulatedDashboard(0, 0));
+  const [targetDashboard, setTargetDashboard] = useState(() => buildSimulatedDashboard(0, 0));
+  const [liveSignalId, setLiveSignalId] = useState(null);
+  const [flipStates, setFlipStates] = useState({});
+  const [hoveredTileId, setHoveredTileId] = useState(null);
+
+  const lastOverrideAtRef = useRef(Number.NEGATIVE_INFINITY);
+  const suppressUntilRef = useRef(Number.NEGATIVE_INFINITY);
+  const flipTimersRef = useRef({});
+  const nextAutoFlipAtRef = useRef({});
+  const processedVisualStepRef = useRef(Number.NEGATIVE_INFINITY);
+  const displayDashboardRef = useRef(displayDashboard);
+  const targetDashboardRef = useRef(targetDashboard);
+  const activeTabRef = useRef(activeTab);
+  const focusStepRef = useRef(focusStep);
+  const presentationModeRef = useRef(presentationMode);
+  const hoveredTileIdRef = useRef(hoveredTileId);
+
+  const activeView = displayDashboard.centerViews[activeTab] ?? displayDashboard.centerViews.M1;
+  const activeLens = lensTabs.find((tab) => tab.id === activeTab)?.label ?? activeView.lensLabel;
+  const freshnessMinutes = getFreshnessMinutes(clockNow.getTime(), lastRefreshMs);
 
   useEffect(() => {
-    const timer = window.setInterval(() => {
-      setNow((d) => new Date(d.getTime() + 60_000));
-      setMotionStep((s) => (s + 1) % 24);
-    }, 4000);
-    return () => window.clearInterval(timer);
+    displayDashboardRef.current = displayDashboard;
+  }, [displayDashboard]);
+
+  useEffect(() => {
+    targetDashboardRef.current = targetDashboard;
+  }, [targetDashboard]);
+
+  useEffect(() => {
+    activeTabRef.current = activeTab;
+  }, [activeTab]);
+
+  useEffect(() => {
+    focusStepRef.current = focusStep;
+  }, [focusStep]);
+
+  useEffect(() => {
+    presentationModeRef.current = presentationMode;
+  }, [presentationMode]);
+
+  useEffect(() => {
+    hoveredTileIdRef.current = hoveredTileId;
+  }, [hoveredTileId]);
+
+  useEffect(() => {
+    /* Time and freshness are minute-based surfaces, not second-by-second clocks. */
+    const minuteTimer = window.setInterval(() => {
+      setClockNow((previous) => new Date(previous.getTime() + 60_000));
+    }, 60_000);
+
+    return () => window.clearInterval(minuteTimer);
   }, []);
 
+  useEffect(() => {
+    /* Focus Now is allowed to rotate its text every 30 seconds without changing layout. */
+    const focusTimer = window.setInterval(() => {
+      setFocusStep((previous) => {
+        const nextStep = (previous + 1) % getFocusSequenceCount();
+        setTargetDashboard(buildSimulatedDashboard(scenarioStep, nextStep));
+        return nextStep;
+      });
+    }, FOCUS_NOW_ROTATE_MS);
+
+    return () => window.clearInterval(focusTimer);
+  }, [scenarioStep]);
+
+  useEffect(() => {
+    const recomputeTimer = window.setInterval(() => {
+      setScenarioStep((previous) => {
+        const nextStep = (previous + 1) % getScenarioFrameCount();
+        const nextTarget = buildSimulatedDashboard(nextStep, focusStepRef.current);
+        const overrideTileId = detectPriorityOverride(displayDashboardRef.current, nextTarget);
+        const nowMs = Date.now();
+
+        if (
+          overrideTileId
+          && (nowMs - lastOverrideAtRef.current) >= OVERRIDE_WINDOW_MS
+        ) {
+          setDisplayDashboard((currentDisplay) => applyScheduledTileUpdate(currentDisplay, nextTarget, overrideTileId, activeTabRef.current));
+          setLiveSignalId(overrideTileId);
+          lastOverrideAtRef.current = nowMs;
+          suppressUntilRef.current = nowMs + OVERRIDE_HOLD_MS;
+        }
+
+        setTargetDashboard(nextTarget);
+        setLastRefreshMs((refreshMs) => refreshMs + SIMULATED_RECOMPUTE_MS);
+        return nextStep;
+      });
+    }, SIMULATED_RECOMPUTE_MS);
+
+    return () => window.clearInterval(recomputeTimer);
+  }, []);
+
+  useEffect(() => {
+    const signalTimer = window.setTimeout(() => {
+      setLiveSignalId(null);
+    }, 900);
+
+    return () => window.clearTimeout(signalTimer);
+  }, [liveSignalId]);
+
+  useEffect(() => {
+    /* Each eligible flip tile gets a quiet deterministic cadence between 20 and 45 seconds. */
+    ['D1', 'D2', 'D4', 'R2', 'R3', 'R4', 'B7', 'B8', 'B9'].forEach((tileId) => {
+      if (!nextAutoFlipAtRef.current[tileId]) {
+        nextAutoFlipAtRef.current[tileId] = Date.now() + getAutoFlipInterval(tileId);
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    const cadenceTimer = window.setInterval(() => {
+      setVisualStep((previous) => previous + 1);
+    }, VISUAL_CADENCE_MS);
+
+    return () => window.clearInterval(cadenceTimer);
+  }, []);
+
+  useEffect(() => {
+    if (visualStep < 0) {
+      return;
+    }
+
+    if (processedVisualStepRef.current === visualStep) {
+      return;
+    }
+
+    const nowMs = Date.now();
+    const slot = getVisualCadenceSlot(visualStep, activeTab);
+    processedVisualStepRef.current = visualStep;
+
+    if (nowMs < suppressUntilRef.current) {
+      return;
+    }
+
+    const hasActiveFlip = Object.values(flipStates).some(Boolean);
+    const autoFlipTileId = getAutoFlipTargetId(
+      visualStep,
+      activeTab,
+      displayDashboard,
+      targetDashboard,
+      nowMs,
+      nextAutoFlipAtRef.current,
+      presentationMode,
+      hasActiveFlip,
+    );
+
+    if (autoFlipTileId) {
+      setFlipStates((current) => ({ ...current, [autoFlipTileId]: true }));
+      setLiveSignalId(autoFlipTileId);
+
+      const releaseFlip = () => {
+        if (hoveredTileIdRef.current === autoFlipTileId || presentationModeRef.current) {
+          flipTimersRef.current[autoFlipTileId] = window.setTimeout(releaseFlip, 500);
+          return;
+        }
+
+        setFlipStates((current) => ({ ...current, [autoFlipTileId]: false }));
+        nextAutoFlipAtRef.current[autoFlipTileId] = Date.now() + getAutoFlipInterval(autoFlipTileId);
+      };
+
+      window.clearTimeout(flipTimersRef.current[autoFlipTileId]);
+      flipTimersRef.current[autoFlipTileId] = window.setTimeout(releaseFlip, FLIP_DWELL_MS);
+      return;
+    }
+
+    if (hasTileChanged(displayDashboard, targetDashboard, slot.targetId, activeTab)) {
+      setDisplayDashboard((currentDisplay) => applyScheduledTileUpdate(currentDisplay, targetDashboard, slot.targetId, activeTab));
+      setLiveSignalId(slot.targetId);
+    }
+  }, [activeTab, displayDashboard, flipStates, presentationMode, targetDashboard, visualStep]);
+
+  useEffect(() => {
+    if (!presentationMode) {
+      return undefined;
+    }
+
+    /* Presentation mode suppresses flip behavior and non-essential micro-motion. */
+    Object.values(flipTimersRef.current).forEach((timerId) => window.clearTimeout(timerId));
+    setFlipStates({});
+    return undefined;
+  }, [presentationMode]);
+
+  function setNextAutoFlip(tileId, pauseMs = 0) {
+    nextAutoFlipAtRef.current[tileId] = Date.now() + getAutoFlipInterval(tileId) + pauseMs;
+  }
+
+  function handleManualFlip(tileId) {
+    if (!isFlipEligible(tileId) || presentationMode) {
+      return;
+    }
+
+    window.clearTimeout(flipTimersRef.current[tileId]);
+
+    setFlipStates((current) => {
+      const nextFlipped = !current[tileId];
+      return { ...current, [tileId]: nextFlipped };
+    });
+
+    setNextAutoFlip(tileId, 12_000);
+    setLiveSignalId(tileId);
+
+    flipTimersRef.current[tileId] = window.setTimeout(() => {
+      if (hoveredTileIdRef.current === tileId) {
+        flipTimersRef.current[tileId] = window.setTimeout(() => {
+          if (hoveredTileIdRef.current !== tileId) {
+            setFlipStates((current) => ({ ...current, [tileId]: false }));
+            setNextAutoFlip(tileId);
+          }
+        }, 500);
+        return;
+      }
+
+      setFlipStates((current) => ({ ...current, [tileId]: false }));
+      setNextAutoFlip(tileId);
+    }, FLIP_DWELL_MS);
+  }
+
+  function handleFlipHover(tileId, isHovered) {
+    if (!isFlipEligible(tileId)) {
+      return;
+    }
+
+    setHoveredTileId(isHovered ? tileId : null);
+  }
+
+  function handlePresentationToggle() {
+    setPresentationMode((current) => !current);
+  }
+
+  function handleTabChange(nextTab) {
+    setActiveTab(nextTab);
+    setDisplayDashboard((currentDisplay) => applyActiveTabSnapshot(currentDisplay, targetDashboard, nextTab));
+  }
+
   return (
-    <div className="app-shell">
-      <div className="screen-frame">
+    <div className={`app-shell ${presentationMode ? 'is-presentation-mode' : ''}`}>
+      <div className="screen-frame" data-scenario-step={scenarioStep}>
         <TopStatusBar
-          now={now}
-          freshnessMinutes={freshnessLoop[motionStep % freshnessLoop.length]}
-          modeLabel={activeView.modeLabel}
-          statusCards={statusCards}
+          now={clockNow}
+          freshnessMinutes={freshnessMinutes}
+          activeLensLabel={activeLens}
+          statusCards={displayDashboard.statusCards}
+          liveSignalId={liveSignalId}
         />
 
         <main className="main-grid">
-          <LeftRail  metrics={leftRailMetrics} />
-          <LeftStack metrics={leftStackMetrics} />
+          <LeftRail
+            metrics={displayDashboard.leftRailMetrics}
+            liveSignalId={liveSignalId}
+            flipStates={flipStates}
+            onManualFlip={handleManualFlip}
+            onFlipHover={handleFlipHover}
+            presentationMode={presentationMode}
+          />
+          <LeftStack metrics={displayDashboard.leftStackMetrics} liveSignalId={liveSignalId} />
 
           <section className="center-column">
-            <CenterViewTabs tabs={lensTabs} activeTab={activeTab} setActiveTab={setActiveTab} />
-            <HeroMarginDial hero={activeView.hero} controls={activeView.controls} motionStep={motionStep} />
+            <CenterViewTabs tabs={lensTabs} activeTab={activeTab} setActiveTab={handleTabChange} />
+            <HeroMarginDial
+              hero={activeView.hero}
+              controls={activeView.controls}
+              heroSignalId={`${activeTab}-hero`}
+              liveSignalId={liveSignalId}
+              presentationMode={presentationMode}
+            />
           </section>
 
-          <RightStack metrics={rightStackMetrics} />
-          <RightRail  metrics={rightRailMetrics} />
+          <RightStack metrics={displayDashboard.rightStackMetrics} liveSignalId={liveSignalId} />
+          <RightRail
+            metrics={displayDashboard.rightRailMetrics}
+            liveSignalId={liveSignalId}
+            flipStates={flipStates}
+            onManualFlip={handleManualFlip}
+            onFlipHover={handleFlipHover}
+            presentationMode={presentationMode}
+          />
         </main>
 
-        <BottomControlStrip bottomStrip={bottomStrip} />
+        <BottomControlStrip
+          bottomStrip={displayDashboard.bottomStrip}
+          liveSignalId={liveSignalId}
+          flipStates={flipStates}
+          onManualFlip={handleManualFlip}
+          onFlipHover={handleFlipHover}
+          presentationMode={presentationMode}
+          onTogglePresentationMode={handlePresentationToggle}
+        />
       </div>
     </div>
   );

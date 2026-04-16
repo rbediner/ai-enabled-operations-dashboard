@@ -9,18 +9,20 @@ const stackStateMap = {
   slate:  'st-stable  tile tile-stable',
 };
 
-function RightStack({ metrics }) {
+function RightStack({ metrics, liveSignalId }) {
   return (
     <div className="column-stack">
       {metrics.map((item) => {
         const sc = stackStateMap[item.state] ?? 'st-stable tile tile-stable';
         /* O3 Onboarding: customer friction is a first-class operating concern */
         const onboardingCls = item.id === 'O3' ? ' st-onboarding' : '';
+        const liveCls = item.id === liveSignalId ? ' live-region-active' : '';
         return (
           <div
             key={item.id}
-            className={`stack-tile ${sc}${onboardingCls}`}
+            className={`stack-tile ${sc}${onboardingCls}${liveCls}`}
             data-box-id={item.id}
+            data-live-region={item.id === liveSignalId ? 'right' : 'idle'}
           >
             <span className="stack-tile__label">{item.label}</span>
             <span className="stack-tile__value">{item.value}</span>

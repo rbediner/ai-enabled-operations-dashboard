@@ -1,32 +1,57 @@
-/* All values locked to PRD or derived from the locked dashboard metrics.
-   Keep the story stable: left demand, center truth, right delivery risk, bottom action. */
+/* Locked base data for the executive dashboard.
+   The live engine layers cadence and small scenario shifts on top of this stable business story. */
 
-/* T3-T6: executive HUD.
-   These are numeric-first by design so the payload is immediately scannable from across the room. */
 export const statusCards = [
-  { id: 'T3', label: 'Pipeline Cov',    value: '2.8x',     state: 'green' },
-  { id: 'T4', label: 'Margin Gap',      value: '-5.8 pts', state: 'yellow' },
-  { id: 'T5', label: 'Client Friction', value: '18 pts',   state: 'red' },
-  { id: 'T6', label: 'Cash Conv',       value: '91%',      state: 'yellow' },
+  { id: 'T3', label: 'Pipeline Cov', value: '2.8x', state: 'green' },
+  { id: 'T4', label: 'Margin Gap', value: '-5.8 pts', state: 'yellow' },
+  { id: 'T5', label: 'Client Friction', value: '18 pts', state: 'red' },
+  { id: 'T6', label: 'Cash Conv', value: '91%', state: 'yellow' },
 ];
 
-/* D1-D4 — Demand signals.
-   Preserve the left-side weighting: Pipeline / Stalled / Forecast stay more important than the smaller signals. */
 export const leftRailMetrics = [
-  { id: 'D1', label: 'New Opps',  value: '18',     status: '+4 vs prior', state: 'green' },
-  { id: 'D2', label: 'Pipeline',  value: '$1.84M', status: 'Weighted',    state: 'green' },
-  { id: 'D3', label: 'Stalled',   value: '$420K',  status: 'At risk',     state: 'yellow' },
-  { id: 'D4', label: 'Conv Rate', value: '34%',    status: '+2 pts',      state: 'green' },
+  {
+    id: 'D1',
+    label: 'New Opps',
+    value: '18',
+    status: '+4 vs prior',
+    state: 'green',
+    flipBack: {
+      value: '+4 vs prior',
+      status: 'Fresh 0m ago',
+    },
+  },
+  {
+    id: 'D2',
+    label: 'Pipeline',
+    value: '$1.84M',
+    status: 'Weighted',
+    state: 'green',
+    flipBack: {
+      value: 'Target $2.00M',
+      status: '+$90K vs prior',
+    },
+  },
+  { id: 'D3', label: 'Stalled', value: '$420K', status: 'At risk', state: 'yellow' },
+  {
+    id: 'D4',
+    label: 'Conv Rate',
+    value: '34%',
+    status: '+2 pts',
+    state: 'green',
+    flipBack: {
+      value: '+2 pts',
+      status: 'Band 32% to 36%',
+    },
+  },
 ];
 
-/* C1-C3 — Commercial quality. */
 export const leftStackMetrics = [
   {
     id: 'C1',
     label: 'Forecast',
     value: '$612K',
     context: 'Target $650K',
-    status: '−$38K to plan',
+    status: '-$38K to plan',
     state: 'yellow',
   },
   {
@@ -47,20 +72,20 @@ export const leftStackMetrics = [
   },
 ];
 
-/* H1-H4 — Center truth views.
-   Each tab must drive a real center-state change, including hero title, value, target, gap, trend, driver, support signal,
-   and the T2 operating mode label. */
 export const centerViews = {
   M1: {
     id: 'M1',
-    modeLabel: 'Margin Review',
+    lensLabel: 'Margin',
+    eyebrow: 'Margin Lens',
+    title: 'Operating Margin',
     hero: {
       id: 'H1',
-      label: 'Operating Margin',
+      eyebrow: 'Margin Lens',
+      title: 'Operating Margin',
       support: 'AI gain +14% offsets some capacity drag',
       value: 18.2,
+      valueFormat: { style: 'percent', decimals: 1 },
       target: 24.0,
-      valueDisplay: '18.2%',
       targetDisplay: '24.0%',
       gapDisplay: '-5.8 pts',
       trendDisplay: '+1.4 pts MoM',
@@ -76,14 +101,17 @@ export const centerViews = {
   },
   M2: {
     id: 'M2',
-    modeLabel: 'Revenue Review',
+    lensLabel: 'Revenue',
+    eyebrow: 'Revenue Lens',
+    title: 'Revenue Forecast',
     hero: {
       id: 'H1',
-      label: 'Revenue Forecast',
+      eyebrow: 'Revenue Lens',
+      title: 'Revenue Forecast',
       support: 'Pipeline cover 2.8x with $420K still stalled',
       value: 612,
+      valueFormat: { style: 'currencyK', decimals: 0 },
       target: 650,
-      valueDisplay: '$612K',
       targetDisplay: '$650K',
       gapDisplay: '-$38K',
       trendDisplay: '+$24K MoM',
@@ -99,14 +127,17 @@ export const centerViews = {
   },
   M3: {
     id: 'M3',
-    modeLabel: 'AI Review',
+    lensLabel: 'AI',
+    eyebrow: 'AI Lens',
+    title: 'AI Leverage',
     hero: {
       id: 'H1',
-      label: 'AI Leverage',
+      eyebrow: 'AI Lens',
+      title: 'AI Leverage',
       support: 'AGI / FTE +14% with cycle time still lagging 0.6d',
       value: 37,
+      valueFormat: { style: 'percent', decimals: 0 },
       target: 48,
-      valueDisplay: '37%',
       targetDisplay: '48%',
       gapDisplay: '-11 pts',
       trendDisplay: '+5 pts QoQ',
@@ -122,8 +153,6 @@ export const centerViews = {
   },
 };
 
-/* O1-O3 — Delivery health.
-   AI is now framed as operating leverage, not an isolated innovation metric. */
 export const rightStackMetrics = [
   {
     id: 'O1',
@@ -146,30 +175,57 @@ export const rightStackMetrics = [
     label: 'Onboarding',
     value: '9.5d',
     context: 'Days to milestone',
-    status: 'Client friction ↑',
+    status: 'Client friction up',
     state: 'yellow',
   },
 ];
 
-/* R1-R4 — Risk signals.
-   R4 is intentionally elevated above R2 because customer friction now reads as a direct profitability threat. */
 export const rightRailMetrics = [
-  { id: 'R1', label: 'Capacity',        value: '−9%',     status: 'Overload',           state: 'red' },
-  { id: 'R2', label: 'Cycle Time',      value: '4.8d',    status: 'Slipping',           state: 'yellow' },
-  { id: 'R3', label: 'AI Gain',         value: '+14%',    status: 'AGI / FTE lift',     state: 'green' },
-  { id: 'R4', label: 'Client Friction', value: '18 pts',  status: 'Escalating',         state: 'red' },
+  { id: 'R1', label: 'Capacity', value: '-9%', status: 'Overload', state: 'red' },
+  {
+    id: 'R2',
+    label: 'Cycle Time',
+    value: '4.8d',
+    status: 'Slipping',
+    state: 'yellow',
+    flipBack: {
+      value: '+0.3d vs prior',
+      status: 'Band 4.5d to 5.0d',
+    },
+  },
+  {
+    id: 'R3',
+    label: 'AI Gain',
+    value: '+14%',
+    status: 'AGI / FTE lift',
+    state: 'green',
+    flipBack: {
+      value: 'Adoption 37%',
+      status: 'Fresh 0m ago',
+    },
+  },
+  {
+    id: 'R4',
+    label: 'Client Friction',
+    value: '18 pts',
+    status: 'Escalating',
+    state: 'red',
+    flipBack: {
+      value: 'Driver: onboarding lag',
+      status: '+2 pts vs prior',
+    },
+  },
 ];
 
-/* Bottom strip: what targets matter and what should happen now. */
 export const bottomStrip = {
   nav: [
     { id: 'B1', label: 'Home', icon: 'home' },
     { id: 'B2', label: 'Back', icon: 'back' },
   ],
   left: [
-    { id: 'B3', label: 'Rev Target', value: '$650K', state: 'slate' },
-    { id: 'B4', label: 'Cash Conv',  value: '91%',   state: 'yellow' },
-    { id: 'B5', label: 'Rocks On Tk', value: '7 / 9', state: 'yellow' },
+    { id: 'B3', label: 'Rev Target', value: '$650K', context: 'This month', status: 'Forecast $612K', state: 'slate' },
+    { id: 'B4', label: 'Cash Conv', value: '91%', context: 'Target 95%', status: '-4 pts to target', state: 'yellow' },
+    { id: 'B5', label: 'Rocks On Track', value: '7 / 9', context: 'Target 9', status: '2 behind', state: 'yellow' },
   ],
   focus: {
     id: 'B6',
@@ -179,9 +235,42 @@ export const bottomStrip = {
     state: 'alert',
   },
   right: [
-    { id: 'B7', label: 'AI Gain',      value: '+14%', state: 'green' },
-    { id: 'B8', label: 'SLA Met',      value: '93%',  state: 'green' },
-    { id: 'B9', label: 'Escalations',  value: '4',    state: 'yellow' },
+    {
+      id: 'B7',
+      label: 'AI Gain',
+      value: '+14%',
+      context: 'Target +18%',
+      status: '-4 pts to target',
+      state: 'green',
+      flipBack: {
+        value: 'Baseline +11%',
+        status: '+3 pts vs baseline',
+      },
+    },
+    {
+      id: 'B8',
+      label: 'SLA Met',
+      value: '93%',
+      context: 'Target 95%',
+      status: '-2 pts to target',
+      state: 'yellow',
+      flipBack: {
+        value: 'Target 95%',
+        status: '-2 pts vs target',
+      },
+    },
+    {
+      id: 'B9',
+      label: 'Escalations',
+      value: '4',
+      context: 'Target <=2',
+      status: '+2 over target',
+      state: 'yellow',
+      flipBack: {
+        value: '+1 vs prior',
+        status: 'Fresh 0m ago',
+      },
+    },
   ],
   util: [
     { id: 'B10', label: 'Alerts', icon: 'alerts' },
@@ -190,7 +279,7 @@ export const bottomStrip = {
 };
 
 export const lensTabs = [
-  { id: 'M1', label: 'Margin',  accent: 'yellow' },
+  { id: 'M1', label: 'Margin', accent: 'yellow' },
   { id: 'M2', label: 'Revenue', accent: 'cyan' },
-  { id: 'M3', label: 'AI',      accent: 'green' },
+  { id: 'M3', label: 'AI', accent: 'green' },
 ];

@@ -55,13 +55,15 @@
   --slate:      #8d9bad;
 
   /* ── TYPE RAMP (locked) ── */
-  --sz-hero:    120px;
+  /* V3.3: step-change hero dominance */
+  --sz-hero:    144px;
   --sz-truth:   60px;
   --sz-signal:  30px;
   --sz-control: 32px;
   --sz-label:   11px;
   --sz-support: 13px;
   --sz-micro:   10px;
+  --header-gap: 5px;
 
   /* ── Geometry ── */
   --radius:     16px;
@@ -117,8 +119,8 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
   /* Liquid glass: deep diagonal with cool-to-dark gradient + inner rim */
   background: linear-gradient(158deg, #192030 0%, #131b27 38%, #0f1620 72%, #0d1319 100%);
   box-shadow:
-    0 32px 80px rgba(0,0,0,0.70),
-    inset 0 1px 0 rgba(255,255,255,0.06),
+    0 28px 72px rgba(0,0,0,0.66),
+    inset 0 1px 0 rgba(255,255,255,0.05),
     inset 0 -1px 0 rgba(0,0,0,0.30);
 }
 
@@ -175,6 +177,71 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 
 .tile-green { --tile-edge-color: var(--edge-green); }
 
+.flip-tile {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  perspective: 1200px;
+}
+
+.flip-tile__surface {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 220ms ease-out;
+}
+
+.flip-tile__face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: inherit;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.flip-tile__face--back {
+  transform: rotateY(180deg);
+}
+
+.flip-tile.is-flipped .flip-tile__surface {
+  transform: rotateY(180deg);
+}
+
+.flip-tile__cue {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 10px;
+  height: 10px;
+  border-top: 1px solid rgba(238,241,246,0.24);
+  border-right: 1px solid rgba(238,241,246,0.24);
+  opacity: 0.48;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.flip-tile__cue::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 5px;
+  height: 5px;
+  border-top: 1px solid rgba(238,241,246,0.18);
+  border-right: 1px solid rgba(238,241,246,0.18);
+}
+
+.flip-tile:hover .flip-tile__cue,
+.flip-tile:focus-visible .flip-tile__cue {
+  opacity: 0.68;
+}
+
 /* ════════════════════════════════════════════
    TOP STATUS BAR
 ════════════════════════════════════════════ */
@@ -183,18 +250,22 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
   height: 72px;
   flex-shrink: 0;
   display: grid;
-  grid-template-columns: 200px 1fr 340px;
+  grid-template-columns: 200px 1fr 420px;
   gap: var(--gap);
+  padding: 2px;
+  border-radius: 18px;
+  background: rgba(17,24,34,0.36);
+  border: 1px solid rgba(255,255,255,0.028);
 }
 
 /* T1 — Logo */
 .logo-panel {
-  padding: 0 16px;
+  padding: 0 15px;
   display: flex;
   align-items: center;
   gap: 10px;
   background: var(--top-bar);
-  border: 1px solid var(--line-stable);
+  border: 1px solid rgba(255,255,255,0.044);
   border-radius: var(--radius);
 }
 
@@ -204,7 +275,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 }
 
 .logo-panel__copy {
-  display: flex; flex-direction: column; gap: 3px;
+  display: flex; flex-direction: column; gap: 2px;
   min-width: 0; overflow: hidden;
 }
 
@@ -224,35 +295,39 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 
 /* T2 — Date / context strip */
 .freshness-panel {
-  padding: 0 20px;
+  padding: 0 18px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 4px;
   background: var(--top-bar);
-  border: 1px solid var(--line-stable);
+  border: 1px solid rgba(255,255,255,0.044);
   border-radius: var(--radius);
 }
 
 .freshness-panel__primary {
   display: flex; align-items: baseline;
-  gap: 10px; white-space: nowrap;
+  gap: 9px; white-space: nowrap;
 }
 
 .freshness-panel__day {
-  font-size: 22px; font-weight: 800;
-  letter-spacing: -0.04em; color: var(--text); line-height: 1;
+  font-size: 21px; font-weight: 800;
+  letter-spacing: -0.04em; color: rgba(238,241,246,0.90); line-height: 1;
 }
 
 .freshness-panel__time {
-  font-size: 18px; font-weight: 500;
+  font-size: 17px; font-weight: 500;
   letter-spacing: -0.02em;
-  color: var(--text-dim); line-height: 1;
+  color: rgba(238,241,246,0.62); line-height: 1;
 }
 
 .freshness-panel__secondary {
   display: flex; align-items: center;
   gap: 6px; white-space: nowrap;
+}
+
+.freshness-panel__secondary--stacked {
+  gap: 14px;
 }
 
 .freshness-panel__secondary span {
@@ -270,11 +345,69 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
   margin-left: 4px;
 }
 
-.signal-tick {
-  width: 5px; height: 5px; border-radius: 50%;
-  flex-shrink: 0; background: var(--green);
-  animation: dotPulse 3s ease-in-out infinite;
+.signal-heartbeat {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--green);
+  opacity: 0.7;
+  animation: liveHeartbeat 2s ease-in-out infinite;
 }
+
+/* V3.3: telemetry tokens (structured, not prose) */
+.freshness-panel__telemetry {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+  flex-wrap: nowrap;
+}
+
+.telemetry-sep {
+  font-size: 10px;
+  color: rgba(238,241,246,0.18);
+  letter-spacing: 0.04em;
+}
+
+.telemetry-token {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.telemetry-token--live {
+  align-items: center;
+}
+
+.telemetry-token--mode .telemetry-key {
+  color: rgba(238,241,246,0.46);
+  letter-spacing: 0.18em;
+}
+
+.telemetry-key {
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: rgba(238,241,246,0.24);
+  font-weight: 700;
+}
+
+.telemetry-key--live {
+  color: rgba(143, 209, 79, 0.82);
+}
+
+.telemetry-val {
+  font-size: 11px;
+  letter-spacing: -0.02em;
+  color: rgba(238,241,246,0.64);
+  font-weight: 700;
+}
+
+.telemetry-token.tt-green  .telemetry-val { color: rgba(143, 209, 79, 0.88); }
+.telemetry-token.tt-yellow .telemetry-val { color: rgba(242, 210, 75, 0.92); }
+.telemetry-token.tt-red    .telemetry-val { color: rgba(255, 90, 95, 0.90); }
+.telemetry-token.tt-slate  .telemetry-val { color: rgba(238,241,246,0.70); }
 
 /* ── T3-T6 STATUS BADGES — Executive HUD ──
    Each answers a real operating question.
@@ -288,13 +421,13 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 
 .status-badge {
   position: relative;
-  padding: 0 11px 0 14px;
+  padding: 0 10px 0 13px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 2px;
   background: var(--top-bar);
-  border: 1px solid var(--line-stable);
+  border: 1px solid rgba(255,255,255,0.05);
   border-radius: var(--radius);
   overflow: hidden;
 }
@@ -311,23 +444,25 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 }
 
 .status-badge__label {
-  font-size: 8px;
-  text-transform: uppercase; letter-spacing: 0.16em;
-  color: rgba(238,241,246,0.38); line-height: 1;
+  display: block;
+  font-size: 7px;
+  text-transform: uppercase; letter-spacing: 0.10em;
+  color: rgba(238,241,246,0.30); line-height: 1;
   font-weight: 600; white-space: nowrap;
 }
 
 .status-badge__value {
-  font-size: 17px; font-weight: 700;
+  display: block;
+  font-size: 16px; font-weight: 700;
   letter-spacing: -0.03em; line-height: 1;
   color: currentColor; white-space: nowrap;
 }
 
 .status-badge__dot { display: none; }
 
-.status-badge.s-green  { color: var(--green);  opacity: 0.56; }
-.status-badge.s-yellow { color: var(--yellow); }
-.status-badge.s-red    { color: var(--red); }
+.status-badge.s-green  { color: var(--green);  opacity: 0.72; }
+.status-badge.s-yellow { color: var(--yellow); opacity: 0.93; }
+.status-badge.s-red    { color: var(--red); opacity: 0.90; }
 
 /* ════════════════════════════════════════════
    MAIN GRID
@@ -361,12 +496,12 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 ════════════════════════════════════════════ */
 
 .rail-tile {
-  padding: 8px 6px 8px 12px;
+  padding: 10px 8px 9px 12px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 4px;
-  border-radius: 8px;
+  gap: var(--header-gap);
+  border-radius: 10px;
   overflow: hidden;
   position: relative;
 }
@@ -397,7 +532,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 .rail-tile__label {
   font-size: 8px;
   text-transform: uppercase; letter-spacing: 0.16em;
-  color: var(--text-ghost); line-height: 1;
+  color: rgba(238,241,246,0.28); line-height: 1;
   white-space: nowrap; font-weight: 500;
 }
 
@@ -406,22 +541,37 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
   font-weight: 800; letter-spacing: -0.05em;
   line-height: 0.9; white-space: nowrap;
   color: var(--text);
+  margin-bottom: 0;
 }
 
 .rail-tile__status {
   font-size: 9px;
   text-transform: uppercase; letter-spacing: 0.10em;
   line-height: 1; white-space: nowrap;
-  color: var(--text-ghost);
+  color: rgba(238,241,246,0.32);
 }
 
-.rail-tile.rt-pressure .rail-tile__value { color: var(--yellow); }
+.rail-tile.rt-pressure .rail-tile__value { color: rgba(242, 210, 75, 0.92); }
 .rail-tile.rt-pressure { --rail-accent: var(--yellow); }
 
 .rail-tile.rt-stable .rail-tile__value { color: var(--text-dim); }
 
-.rail-tile.rt-green .rail-tile__value { color: var(--text); }
+.rail-tile.rt-green .rail-tile__value { color: rgba(143, 209, 79, 0.88); }
 .rail-tile.rt-green { --rail-accent: var(--green); }
+.stack-tile.st-close-rate .stack-tile__value {
+  /* V3.3 left-side weighting: close rate matters more than avg deal */
+  font-size: 66px;
+  letter-spacing: -0.07em;
+}
+
+.stack-tile.st-avg-deal .stack-tile__value {
+  font-size: 54px;
+  color: rgba(238,241,246,0.90);
+}
+
+.stack-tile.st-avg-deal .stack-tile__status {
+  color: rgba(143, 209, 79, 0.60);
+}
 
 /* ── R1 CAPACITY — breaks the rail system. System alert. ── */
 .rail-tile.rt-critical .rail-tile__value { color: var(--red); }
@@ -429,9 +579,9 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 
 .rail-tile.tile-critical {
   background: #230f14;
-  border: 1.5px solid rgba(255, 90, 95, 0.50);
-  box-shadow: inset 0 0 28px rgba(255, 90, 95, 0.10),
-              0 0 0 1px rgba(255, 90, 95, 0.10);
+  border: 1.5px solid rgba(255, 90, 95, 0.42);
+  box-shadow: inset 0 0 20px rgba(255, 90, 95, 0.07),
+              0 0 0 1px rgba(255, 90, 95, 0.08);
 }
 
 /* Edge bar re-enabled — full height, full strength */
@@ -445,14 +595,14 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 
 .rail-tile.rt-critical .rail-tile__label,
 .rail-tile.rt-critical .rail-tile__status {
-  color: rgba(255, 90, 95, 0.72);
+  color: rgba(255, 90, 95, 0.60);
 }
 
 /* Client friction gets a little more visual urgency than generic red alerts so it can outrank cycle time drift. */
 .rail-tile--client-risk.tile-critical {
   background: linear-gradient(172deg, #271119 0%, #1f0d14 100%);
-  box-shadow: inset 0 0 34px rgba(255, 90, 95, 0.14),
-              0 0 0 1px rgba(255, 90, 95, 0.12);
+  box-shadow: inset 0 0 24px rgba(255, 90, 95, 0.10),
+              0 0 0 1px rgba(255, 90, 95, 0.09);
 }
 
 .rail-tile--client-risk .rail-tile__status {
@@ -468,11 +618,12 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 ════════════════════════════════════════════ */
 
 .stack-tile {
-  padding: 18px 20px 16px 26px;
+  padding: 16px 20px 15px 24px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 0;
+  border-radius: 14px;
 }
 
 /* Glass top-edge highlight */
@@ -487,8 +638,8 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 .stack-tile__label {
   font-size: var(--sz-label);
   text-transform: uppercase; letter-spacing: 0.16em;
-  color: var(--text-quiet); line-height: 1;
-  margin-bottom: 5px; white-space: nowrap;
+  color: rgba(238,241,246,0.44); line-height: 1;
+  margin-bottom: var(--header-gap); white-space: nowrap;
   font-weight: 500;
 }
 
@@ -496,13 +647,13 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
   font-size: var(--sz-truth);
   font-weight: 800; letter-spacing: -0.06em;
   line-height: 0.88; color: var(--text);
-  white-space: nowrap; margin-bottom: 6px;
+  white-space: nowrap; margin-bottom: 5px;
 }
 
 /* Context line: target/band — quiet, grounded */
 .stack-tile__context {
   font-size: var(--sz-support);
-  color: var(--text-ghost); line-height: 1;
+  color: rgba(238,241,246,0.30); line-height: 1;
   white-space: nowrap;
 }
 
@@ -510,7 +661,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 .stack-tile__status {
   font-size: var(--sz-support);
   line-height: 1; white-space: nowrap;
-  margin-top: 4px; font-weight: 500;
+  margin-top: 3px; font-weight: 500;
 }
 
 /* State modifiers */
@@ -560,7 +711,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
   border-radius: var(--radius-sm);
   border: 1px solid var(--line-stable);
   background: linear-gradient(172deg, #1f2a38 0%, #1c2632 100%);
-  transition: background 200ms, border-color 200ms;
+  transition: background 180ms ease-out, border-color 180ms ease-out;
   overflow: hidden;
 }
 
@@ -575,7 +726,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 .view-tabs__label {
   font-size: var(--sz-label);
   font-weight: 700; letter-spacing: 0.13em;
-  text-transform: uppercase; color: var(--text-ghost);
+  text-transform: uppercase; color: rgba(238,241,246,0.30);
   line-height: 1; position: relative; z-index: 1;
 }
 
@@ -584,12 +735,16 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
   border-color: var(--line-pressure);
 }
 
-.view-tabs__tab.is-active .view-tabs__label { color: var(--text); }
+.view-tabs__tab.is-active .view-tabs__label {
+  color: var(--text);
+  transition: color 180ms ease-out;
+}
 
 .view-tabs__tab.is-active::after {
   content: ''; position: absolute;
   left: 12px; right: 12px; bottom: 0;
   height: 2px; border-radius: 999px;
+  transition: transform 180ms ease-out, opacity 180ms ease-out;
 }
 
 .accent-yellow.is-active::after { background: var(--yellow); }
@@ -606,7 +761,8 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 .hero-zone {
   flex: 1; min-height: 0;
   display: flex; flex-direction: column;
-  gap: var(--gap);
+  /* V3.3: tighter integration between dial and target strip */
+  gap: 6px;
 }
 
 /* Liquid glass — deepest surface, center-lit, vignette edges */
@@ -620,10 +776,10 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
   border: 1px solid var(--line-hero);
   overflow: hidden;
   box-shadow:
-    inset 0 0 120px rgba(0,0,0,0.42),
-    inset 0 1px 0 rgba(255,255,255,0.06),
-    0 8px 40px rgba(0,0,0,0.45),
-    0 0 0 1px rgba(255,255,255,0.035);
+    inset 0 0 88px rgba(0,0,0,0.36),
+    inset 0 1px 0 rgba(255,255,255,0.05),
+    0 6px 28px rgba(0,0,0,0.38),
+    0 0 0 1px rgba(255,255,255,0.03);
 }
 
 /* Value-zone ambient glow — warm pressure signal */
@@ -631,13 +787,16 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
   content: '';
   position: absolute;
   inset: 18% 24%;
-  background: radial-gradient(ellipse, rgba(242,210,75,0.065) 0%, transparent 62%);
+  background: radial-gradient(ellipse, rgba(242,210,75,0.052) 0%, transparent 62%);
   pointer-events: none;
+  opacity: 0.16;
+  animation: heroGlowBreath 8s ease-in-out infinite;
 }
 
 .hero-dial__svg {
   position: absolute;
-  inset: 32px 70px 48px;
+  /* V3.2: more bottom breathing room so the ring doesn't read "cut" by H2-H4 strip */
+  inset: 24px 62px 78px;
 }
 
 .hero-dial__track,
@@ -651,14 +810,16 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 /* Ring recedes — value and context block dominate */
 .hero-dial__track {
   stroke: rgba(255,255,255,0.025);
-  stroke-width: 6;
+  /* V3.3: slightly thinner ring so type dominates */
+  stroke-width: 5;
 }
 
 .hero-dial__progress {
   stroke: url(#ringGradient);
-  stroke-width: 6;
+  stroke-width: 5;
   stroke-linecap: round;
-  transition: stroke-dashoffset 900ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  opacity: 0.82;
+  transition: stroke-dashoffset 420ms ease-in-out;
 }
 
 .hero-dial__halo { display: none; }
@@ -670,42 +831,80 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
   display: flex; flex-direction: column;
   align-items: center;
   gap: 0; text-align: center;
+  /* Keep the hero optically centered without letting support copy collide with the value. */
+  margin-top: 2px;
 }
 
 /* Category tag — barely there, but readable */
-.hero-dial__label {
+.hero-dial__eyebrow {
   font-size: 9px; line-height: 1;
   text-transform: uppercase; letter-spacing: 0.28em;
-  color: rgba(238,241,246,0.32);
+  color: rgba(238,241,246,0.26);
   font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.hero-dial__title {
+  font-size: 14px;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: rgba(238,241,246,0.78);
+  font-weight: 700;
   margin-bottom: 8px;
 }
 
 .hero-dial__support {
+  display: block;
+  max-width: 390px;
   font-size: 12px;
-  line-height: 1;
+  line-height: 1.06;
   letter-spacing: 0.01em;
-  color: var(--text-ghost);
-  margin-bottom: 12px;
+  color: rgba(238,241,246,0.68);
+  margin-bottom: 16px;
+}
+
+.hero-dial__content,
+.hero-controls {
+  transition: opacity 180ms ease-out, transform 180ms ease-out;
+}
+
+.hero-dial__content.is-leaving,
+.hero-controls.is-leaving {
+  opacity: 0;
+  transform: translateY(0);
+}
+
+.hero-dial__content.is-entering,
+.hero-controls.is-entering {
+  opacity: 1;
+  transform: translateY(6px);
+}
+
+.hero-dial__content.is-entered,
+.hero-controls.is-entered {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* Primary value — maximum contrast, anchored */
 .hero-dial__value {
+  display: block;
   font-size: var(--sz-hero);
-  line-height: 0.84; letter-spacing: -0.07em;
+  line-height: 0.88; letter-spacing: -0.075em;
   font-weight: 800; color: #ffffff;
   position: relative;
-  margin-bottom: 22px;
+  margin-bottom: 11px;
 }
 
 /* Instrument rule — separates reading from context block */
 .hero-dial__value::after {
   content: '';
   position: absolute;
-  bottom: -11px;
+  bottom: -7px;
   left: 50%; transform: translateX(-50%);
-  width: 36px; height: 1px;
-  background: rgba(242, 210, 75, 0.22);
+  width: 40px; height: 1px;
+  background: rgba(242, 210, 75, 0.24);
 }
 
 /* ── Context block: the four answers ──
@@ -714,9 +913,13 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 .hero-dial__context-block {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
   width: 100%;
-  max-width: 200px;
+  max-width: 270px;
+  padding: 8px 12px 9px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.018);
+  border: 1px solid rgba(255,255,255,0.038);
 }
 
 .hero-dial__context-row {
@@ -728,20 +931,20 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 
 /* Driver row: slightly more visual weight */
 .hero-dial__context-row--driver {
-  margin-top: 4px;
-  padding-top: 6px;
+  margin-top: 3px;
+  padding-top: 5px;
   border-top: 1px solid rgba(255,255,255,0.06);
 }
 
 .hero-dial__ctx-label {
   font-size: 10px;
   text-transform: uppercase; letter-spacing: 0.18em;
-  color: var(--text-ghost); font-weight: 500;
+  color: rgba(238,241,246,0.36); font-weight: 700;
   white-space: nowrap; flex-shrink: 0;
 }
 
 .hero-dial__ctx-value {
-  font-size: 13px; font-weight: 700;
+  font-size: 15px; font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--text-dim); white-space: nowrap;
   text-align: right;
@@ -760,29 +963,58 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 /* Pressure driver — named suppressor, yellow */
 .hero-dial__ctx-value--driver {
   color: var(--yellow);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 800;
   letter-spacing: -0.01em;
 }
 
 /* H2-H4 Target controls */
 .hero-controls {
-  height: 56px; flex-shrink: 0;
+  /* V3.2: tighter strip so it reads as an instrument footer, not a second band */
+  height: 54px;
+  flex-shrink: 0;
   display: grid;
-  grid-template-columns: 64px 1fr 64px;
-  gap: var(--gap);
+  grid-template-columns: 56px 1fr 56px;
+  gap: 8px;
+  /* V3.3: treat as integrated footer strip */
+  align-self: center;
+  width: 70%;
+  max-width: 520px;
+  padding: 6px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.044);
+  background: linear-gradient(172deg, rgba(17,30,48,0.86) 0%, rgba(13,24,38,0.86) 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
 }
 
 .hero-control {
-  display: grid; place-items: center;
-  background: linear-gradient(172deg, #111e30 0%, #0d1826 100%);
-  border: 1px solid rgba(255,255,255,0.058);
-  border-radius: var(--radius);
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.042);
+  border-radius: 10px;
 }
 
 .hero-control--adj {
-  font-size: 26px; font-weight: 700;
-  color: var(--yellow); letter-spacing: -0.04em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding-top: 2px;
+}
+
+.hero-control--disabled {
+  opacity: 0.50;
+  filter: saturate(0.92);
+}
+
+.hero-control__ghost {
+  font-size: 22px;
+  line-height: 0.9;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: rgba(242,210,75,0.70);
 }
 
 .hero-control--display {
@@ -797,7 +1029,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 }
 
 .hero-control--display strong {
-  font-size: 38px; line-height: 0.9;
+  font-size: 40px; line-height: 0.9;
   font-weight: 800; letter-spacing: -0.05em;
   color: var(--text);
 }
@@ -812,6 +1044,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
   display: grid;
   grid-template-columns: 90px 1fr 148px 1fr 70px;
   gap: var(--gap);
+  opacity: 0.90;
 }
 
 .bottom-group { display: grid; gap: 6px; }
@@ -823,11 +1056,12 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 
 .ctrl-tile {
   position: relative;
-  padding: 10px 12px;
+  padding: 9px 12px;
   display: flex; flex-direction: column;
-  justify-content: center; gap: 4px;
+  justify-content: center;
+  gap: var(--header-gap);
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(255,255,255,0.062);
+  border: 1px solid rgba(255,255,255,0.046);
   background: linear-gradient(172deg, #1d2838 0%, #1a2333 100%);
   overflow: hidden;
 }
@@ -837,27 +1071,63 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 .ctrl-tile__label {
   font-size: 8px; line-height: 1;
   text-transform: uppercase; letter-spacing: 0.16em;
-  color: var(--text-ghost); white-space: nowrap;
+  color: rgba(238,241,246,0.24); white-space: nowrap;
   font-weight: 500;
 }
 
 .ctrl-tile__value {
   font-size: var(--sz-control);
   font-weight: 800; letter-spacing: -0.04em;
-  line-height: 0.92; color: var(--text);
+  line-height: 0.92; color: rgba(238,241,246,0.74);
   white-space: nowrap;
 }
 
+.ctrl-tile__context {
+  font-size: 10px;
+  line-height: 1;
+  color: rgba(238,241,246,0.24);
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+.ctrl-tile__status {
+  font-size: 10px;
+  line-height: 1;
+  color: rgba(238,241,246,0.42);
+  white-space: nowrap;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.ctrl-tile--center { text-align: center; align-items: center; }
+.ctrl-tile--left { text-align: left; align-items: flex-start; }
+
+/* V3.2: make watch tiles communicate "needs review" more clearly without saturation */
+.ctrl-tile.ct-watch .ctrl-tile__value { color: rgba(242, 210, 75, 0.94); }
+.ctrl-tile.ct-watch .ctrl-tile__value { color: rgba(242, 210, 75, 0.78); }
+.ctrl-tile.ct-watch .ctrl-tile__status { color: rgba(242, 210, 75, 0.58); }
+
+/* V3.2: explicit state tint for bottom metrics (premium + restrained) */
+.ctrl-tile.ct-green .ctrl-tile__value { color: rgba(143, 209, 79, 0.74); }
+.ctrl-tile.ct-green .ctrl-tile__status { color: rgba(143, 209, 79, 0.52); }
+.ctrl-tile.ct-red .ctrl-tile__value { color: rgba(255, 90, 95, 0.76); }
+.ctrl-tile.ct-red .ctrl-tile__status { color: rgba(255, 90, 95, 0.56); }
+
 /* Watch tiles — targets that need attention */
 .ctrl-tile.ct-watch {
-  border-color: rgba(242,210,75,0.20);
-  background: linear-gradient(172deg, #232d3c 0%, #202a37 100%);
+  border-color: rgba(242,210,75,0.14);
+  background: linear-gradient(172deg, #212b39 0%, #1f2835 100%);
 }
 
 /* Icon tiles — slightly recessed */
 .ctrl-tile--icon {
   align-items: center; justify-content: center;
   gap: 0; opacity: 0.70;
+}
+
+.ctrl-tile--active {
+  opacity: 0.96;
+  border-color: rgba(54,214,231,0.28);
 }
 
 .ctrl-icon {
@@ -900,9 +1170,9 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
   position: relative;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  gap: 3px; padding: 10px 14px;
+  gap: var(--header-gap); padding: 9px 14px;
   border-radius: 8px;
-  border: 1.5px solid rgba(255, 123, 77, 0.42);
+  border: 1.5px solid rgba(255, 123, 77, 0.46);
   background: linear-gradient(172deg, #1f1108 0%, #170d06 100%);
   overflow: hidden;
 }
@@ -919,7 +1189,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 .focus-now-tile__label {
   font-size: 8px; line-height: 1;
   text-transform: uppercase; letter-spacing: 0.24em;
-  color: rgba(255, 123, 77, 0.80);
+  color: rgba(255, 123, 77, 0.70);
   font-weight: 700;
 }
 
@@ -927,13 +1197,13 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 .focus-now-tile__value {
   font-size: 16px; font-weight: 800;
   letter-spacing: -0.02em; text-align: center;
-  color: #f0ece8; line-height: 1.10;
+  color: #f0ece8; line-height: 1.08;
   white-space: nowrap;
 }
 
 .focus-now-tile__sub {
   font-size: 10px; line-height: 1;
-  color: rgba(255, 123, 77, 0.65);
+  color: rgba(255, 123, 77, 0.58);
   white-space: nowrap; font-weight: 500;
   letter-spacing: 0.02em;
 }
@@ -942,8 +1212,56 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
    ANIMATION
 ════════════════════════════════════════════ */
 
-@keyframes dotPulse {
-  0%   { box-shadow: 0 0 0 0 rgba(143,209,79,0.6); opacity: 1; }
-  70%  { box-shadow: 0 0 0 5px transparent; opacity: 0.8; }
-  100% { box-shadow: 0 0 0 0 transparent; opacity: 1; }
+.live-region-active {
+  animation: regionRefresh 700ms ease-out;
+}
+
+.is-presentation-mode .live-region-active,
+.is-presentation-mode .hero-dial::after {
+  animation: none;
+}
+
+.is-presentation-mode .flip-tile__surface {
+  transition: none;
+}
+
+@keyframes liveHeartbeat {
+  0% { opacity: 0.45; }
+  50% { opacity: 0.95; }
+  100% { opacity: 0.45; }
+}
+
+@keyframes heroGlowBreath {
+  0% { opacity: 0.14; }
+  50% { opacity: 0.20; }
+  100% { opacity: 0.14; }
+}
+
+@keyframes regionRefresh {
+  0% {
+    filter: brightness(1.08);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
+  }
+  100% {
+    filter: brightness(1);
+    box-shadow: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .signal-heartbeat,
+  .hero-dial::after,
+  .live-region-active {
+    animation: none;
+  }
+
+  .hero-dial__content,
+  .hero-controls,
+  .hero-dial__progress,
+  .flip-tile__surface,
+  .view-tabs__tab,
+  .view-tabs__tab.is-active::after,
+  .view-tabs__tab.is-active .view-tabs__label {
+    transition: none;
+  }
 }

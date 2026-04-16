@@ -9,18 +9,22 @@ const stackStateMap = {
   slate:  'st-stable  tile tile-stable',
 };
 
-function LeftStack({ metrics }) {
+function LeftStack({ metrics, liveSignalId }) {
   return (
     <div className="column-stack">
       {metrics.map((item) => {
         const sc = stackStateMap[item.state] ?? 'st-stable tile tile-stable';
         /* C1 Forecast is strategically elevated above peer stack tiles */
         const forecastCls = item.id === 'C1' ? ' st-forecast' : '';
+        const closeRateCls = item.id === 'C2' ? ' st-close-rate' : '';
+        const avgDealCls = item.id === 'C3' ? ' st-avg-deal' : '';
+        const liveCls = item.id === liveSignalId ? ' live-region-active' : '';
         return (
           <div
             key={item.id}
-            className={`stack-tile ${sc}${forecastCls}`}
+            className={`stack-tile ${sc}${forecastCls}${closeRateCls}${avgDealCls}${liveCls}`}
             data-box-id={item.id}
+            data-live-region={item.id === liveSignalId ? 'left' : 'idle'}
           >
             <span className="stack-tile__label">{item.label}</span>
             <span className="stack-tile__value">{item.value}</span>
