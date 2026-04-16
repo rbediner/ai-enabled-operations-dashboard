@@ -102,12 +102,26 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
   display: grid; place-items: center;
   padding: 12px;
   background: #0e131a;
+  overflow: hidden;
+}
+
+.app-shell.is-fullscreen {
+  padding: 0;
+}
+
+.app-shell.is-fullscreen .screen-frame {
+  width: min(100vw, calc(100vh * 16 / 9));
+  max-height: 100vh;
+  border-radius: 0;
+  border: none;
 }
 
 .screen-frame {
   position: relative;
-  width: min(100vw - 24px, 1920px);
-  height: min(100vh - 24px, 1080px);
+  aspect-ratio: 16 / 9;
+  width: min(100vw - 24px, calc((100vh - 24px) * 16 / 9), 1920px);
+  height: auto;
+  max-height: min(100vh - 24px, 1080px);
   margin: 0;
   padding: 12px;
   display: flex;
@@ -125,29 +139,23 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 }
 
 .fullscreen-toggle {
-  position: absolute;
-  top: 18px;
-  right: 18px;
-  z-index: 10;
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 7px 12px;
-  border-radius: 999px;
-  background: rgba(17, 24, 34, 0.72);
-  border: 1px solid rgba(255,255,255,0.10);
-  color: rgba(238,241,246,0.72);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  justify-content: center;
+  width: 44px;
+  height: 100%;
+  border-radius: var(--radius);
+  background: var(--top-bar);
+  border: 1px solid rgba(255,255,255,0.044);
+  color: rgba(238,241,246,0.56);
   transition: background 160ms ease-out, color 160ms ease-out, border-color 160ms ease-out;
+  cursor: pointer;
 }
 
 .fullscreen-toggle:hover {
-  background: rgba(27, 36, 48, 0.92);
+  background: #1c2532;
   color: var(--text);
-  border-color: rgba(255,255,255,0.18);
+  border-color: rgba(255,255,255,0.12);
 }
 
 /* ════════════════════════════════════════════
@@ -306,7 +314,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
   height: 72px;
   flex-shrink: 0;
   display: grid;
-  grid-template-columns: 200px 1fr 420px;
+  grid-template-columns: 200px 1fr 420px 44px;
   gap: var(--gap);
   padding: 2px;
   border-radius: 18px;

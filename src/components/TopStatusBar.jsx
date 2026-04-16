@@ -1,4 +1,4 @@
-function TopStatusBar({ now, freshnessMinutes, activeLensLabel, statusCards, liveSignalId }) {
+function TopStatusBar({ now, freshnessMinutes, activeLensLabel, statusCards, liveSignalId, isFullscreen, onToggleFullscreen }) {
   const day = now.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
   const time = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
   const logoSrc = `${import.meta.env.BASE_URL}canopy-logo.svg`;
@@ -51,6 +51,21 @@ function TopStatusBar({ now, freshnessMinutes, activeLensLabel, statusCards, liv
           </div>
         ))}
       </div>
+
+      <button
+        type="button"
+        className="fullscreen-toggle"
+        aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+        onClick={onToggleFullscreen}
+      >
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+          {isFullscreen ? (
+            <path d="M6 2v2H4v2H2V2h4zm4 0h4v4h-2V4h-2V2zM6 14v-2H4v-2H2v4h4zm4 0h4v-4h-2v2h-2v2z" fill="currentColor" />
+          ) : (
+            <path d="M2 2h4v2H4v2H2V2zm8 0h4v4h-2V4h-2V2zM2 10h2v2h2v2H2v-4zm10 0h2v4h-4v-2h2v-2z" fill="currentColor" />
+          )}
+        </svg>
+      </button>
     </header>
   );
 }
