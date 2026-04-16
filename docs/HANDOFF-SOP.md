@@ -9,8 +9,8 @@ Follow this SOP whenever picking up work from another machine or another agent.
 
 | Branch | Purpose |
 |---|---|
-| `staging` | Active development. All changes committed here first. |
-| `prod` | Deploy branch. GitHub Pages deploys from here. Fast-forward only from `staging`. |
+| `staging` | Active development. All changes committed here first. GitHub Actions builds and publishes the preview artifact to the separate preview repo. |
+| `prod` | Release branch. GitHub Pages deploys from here. Fast-forward only from `staging`. |
 
 **Rule: Never commit directly to `prod`. Always develop on `staging`, verify, then promote.**
 
@@ -43,19 +43,21 @@ npm run dev
 
 1. Develop and commit on `staging`
 2. Run `npm run screenshot` — verify all 3 states look correct
-3. Share staging preview via Cloudflare tunnel for approval:
-   ```bash
-   cloudflared tunnel --url http://localhost:5173
+3. Push `staging` so Actions publishes the preview to:
+   ```text
+   https://github.com/rbediner/canopy-exec-dash-prt
+   https://rbediner.github.io/canopy-exec-dash-prt/
    ```
-4. Once visually approved, promote to `prod` (fast-forward only):
+4. Use the published preview URL for stakeholder approval
+5. Once visually approved, promote to `prod` (fast-forward only):
    ```bash
    git checkout prod
    git merge --ff-only staging
    git push origin prod
    git checkout staging
    ```
-5. GitHub Actions deploys to GitHub Pages automatically on push to `prod`
-6. Overwrite `docs/handoff/latest.md` with the current session state
+6. GitHub Actions deploys to GitHub Pages automatically on push to `prod`
+7. Overwrite `docs/handoff/latest.md` with the current session state
 
 **Do not promote a commit to `prod` that has not been visually verified on staging.**
 
@@ -95,18 +97,20 @@ If sync drift is suspected:
 | Layer | Location | Status |
 |---|---|---|
 | Local preview | `npm run dev` → `http://localhost:5173/` | Ready |
-| Stakeholder preview | `cloudflared tunnel --url http://localhost:5173` | On demand |
+| Stakeholder preview repo | `https://github.com/rbediner/canopy-exec-dash-prt` | Live |
+| Stakeholder preview page | `https://rbediner.github.io/canopy-exec-dash-prt/` | Live |
 | Production build | `npm run build && npm run preview` | Ready |
-| GitHub Pages (prod) | Deploys from `prod` branch via GitHub Actions | Pending remote setup |
+| Source repo | `https://github.com/rbediner/canopy-exec-dashboard` | Live |
+| GitHub Pages (prod) | Deploys from `prod` branch via GitHub Actions in source repo | Ready after Pages is enabled on source repo |
 
-### Remote Setup (one-time, not yet done)
-To connect to GitHub and enable GitHub Pages deployment:
-1. Create a new repo at github.com (e.g. `rbediner/canopy-exec-dashboard`)
-2. Add remote: `git remote add origin git@github.com:rbediner/canopy-exec-dashboard.git`
-3. Push both branches: `git push -u origin staging && git push origin prod`
-4. In GitHub repo settings: enable Pages, set source to `prod` branch, root `/`
-5. Add a GitHub Actions workflow at `.github/workflows/deploy-pages.yml` to build and deploy on push to `prod`
-6. Once live, retire `canopy-exec-dash-prt/` — it is no longer needed
+### One-Time GitHub Setup Still Required
+1. In `rbediner/canopy-exec-dashboard`, add a repo secret named `PREVIEW_PUBLISH_TOKEN`
+2. That token must have write access to `rbediner/canopy-exec-dash-prt`
+3. In `rbediner/canopy-exec-dashboard`, open Settings → Pages
+4. Set the build source to `GitHub Actions`
+5. After that:
+   - pushes to `staging` will publish the built preview artifact to the preview repo
+   - pushes to `prod` will deploy the live site from the source repo Pages workflow
 
 ---
 
@@ -119,6 +123,8 @@ Key paths:
 - `src/data/dashboardData.js` — all metric values and labels
 - `src/components/` — purpose-built dashboard components
 - `src/styles.css` — complete V2.7 design system
+- `.github/workflows/deploy-preview.yml` — staging build and preview publish workflow
+- `.github/workflows/deploy-pages.yml` — prod GitHub Pages deploy workflow
 - `public/canopy-logo.svg` — single source of truth for the logo
 - `design/wireframe-prototype.html` — layout reference
 - `design/exec-dashboard-prd.gdoc` — PRD shortcut

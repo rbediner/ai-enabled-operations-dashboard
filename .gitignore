@@ -1,9 +1,6 @@
 # Dependencies
 node_modules/
 
-# Nested repo — separate GitHub Pages deploy target (to be retired)
-canopy-exec-dash-prt/
-
 # Build output
 dist/
 

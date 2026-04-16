@@ -19,8 +19,8 @@ Do not touch code until you have read both.
 
 | Branch | Purpose |
 |---|---|
-| `staging` | Active development. All changes go here first. |
-| `prod` | Deployment branch. GitHub Pages deploys from here. Only receives promoted commits from `staging`. |
+| `staging` | Active development branch. GitHub Actions builds this branch and publishes the preview artifact to the separate preview repo. |
+| `prod` | Release branch. Only promoted commits from `staging` land here. GitHub Pages deploys this branch as the eventual live site. |
 
 **Always work on `staging`. Never commit directly to `prod`.**
 
@@ -30,8 +30,15 @@ Do not touch code until you have read both.
 
 1. Make changes on `staging`
 2. Run `npm run screenshot` and visually verify all 3 states
-3. Share preview via Cloudflare tunnel for stakeholder approval (see below)
-4. Once approved, promote the exact tested commit to `prod`:
+3. Push `staging` so GitHub Actions publishes the built preview to:
+
+```text
+https://github.com/rbediner/canopy-exec-dash-prt
+https://rbediner.github.io/canopy-exec-dash-prt/
+```
+
+4. Use that preview URL for stakeholder review
+5. Once approved, promote the exact tested commit to `prod`:
 
 ```bash
 git checkout prod
@@ -40,7 +47,13 @@ git push origin prod
 git checkout staging
 ```
 
-GitHub Actions will deploy to GitHub Pages automatically on push to `prod`.
+6. GitHub Actions will deploy `prod` to GitHub Pages automatically.
+
+Source repo:
+
+```text
+https://github.com/rbediner/canopy-exec-dashboard
+```
 
 ---
 
@@ -54,15 +67,13 @@ npm run dev
 
 Open `http://localhost:5173/`
 
-## Stakeholder Preview (Cloudflare Tunnel)
+## Stakeholder Preview
 
-With dev server running:
+Push the `staging` branch and review the latest published preview at:
 
-```bash
-cloudflared tunnel --url http://localhost:5173
+```text
+https://rbediner.github.io/canopy-exec-dash-prt/
 ```
-
-Prints a public `https://*.trycloudflare.com` URL within ~5 seconds. Share this for review.
 
 ## Capture All Dashboard States (run every session)
 
@@ -100,4 +111,4 @@ npm run preview     # serve the build locally
 - Layout and box mapping follow `design/wireframe-prototype.html` exactly
 - Metric values follow the Google Doc PRD — do not substitute cleaner or greener numbers
 - This workspace lives in Google Drive — always follow the sync-drift SOP before editing from a second machine
-- `canopy-exec-dash-prt/` is the old deploy folder — it is gitignored and will be retired once GitHub Pages is wired to the `prod` branch of this repo
+- `canopy-exec-dash-prt/` is no longer part of the workspace model; the preview now publishes from Actions to the separate preview repo
