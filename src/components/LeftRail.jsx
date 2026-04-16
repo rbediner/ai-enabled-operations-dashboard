@@ -9,8 +9,9 @@ const stateMap = {
 
 function renderTileFace(item, face = 'front') {
   const backFace = item.flipBack ?? {};
-  const value = face === 'back' ? (backFace.value ?? item.value) : item.value;
-  const status = face === 'back' ? (backFace.status ?? item.status) : item.status;
+  const isBack = face === 'back';
+  const value = isBack ? (backFace.value ?? item.value) : item.value;
+  const status = isBack ? null : item.status;
 
   return (
     <>

@@ -269,8 +269,27 @@ function App() {
   }
 
   function handlePresentationToggle() {
-    setPresentationMode((current) => !current);
+    setPresentationMode((current) => {
+      const next = !current;
+      const root = document.documentElement;
+      if (next && !document.fullscreenElement && root.requestFullscreen) {
+        root.requestFullscreen().catch(() => {});
+      } else if (!next && document.fullscreenElement && document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      }
+      return next;
+    });
   }
+
+  useEffect(() => {
+    function handleFullscreenChange() {
+      if (!document.fullscreenElement && presentationModeRef.current) {
+        setPresentationMode(false);
+      }
+    }
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
 
   function handleTabChange(nextTab) {
     setActiveTab(nextTab);

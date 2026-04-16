@@ -18,9 +18,10 @@ function buildTileClass(item, liveSignalId) {
 
 function renderMetricFace(item, face = 'front') {
   const backFace = item.flipBack ?? {};
-  const value = face === 'back' ? (backFace.value ?? item.value) : item.value;
-  const context = face === 'back' ? undefined : item.context;
-  const status = face === 'back' ? (backFace.status ?? item.status) : item.status;
+  const isBack = face === 'back';
+  const value = isBack ? (backFace.value ?? item.value) : item.value;
+  const context = isBack ? undefined : item.context;
+  const status = isBack ? null : item.status;
 
   return (
     <>

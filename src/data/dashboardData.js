@@ -17,7 +17,6 @@ export const leftRailMetrics = [
     state: 'green',
     flipBack: {
       value: '+4 vs prior',
-      status: 'Fresh 0m ago',
     },
   },
   {
@@ -27,8 +26,7 @@ export const leftRailMetrics = [
     status: 'Weighted',
     state: 'green',
     flipBack: {
-      value: 'Target $2.00M',
-      status: '+$90K vs prior',
+      value: '+$90K vs prior',
     },
   },
   { id: 'D3', label: 'Stalled', value: '$420K', status: 'At risk', state: 'yellow' },
@@ -39,8 +37,7 @@ export const leftRailMetrics = [
     status: '+2 pts',
     state: 'green',
     flipBack: {
-      value: '+2 pts',
-      status: 'Band 32-36%',
+      value: 'Band 32–36%',
     },
   },
 ];
@@ -190,7 +187,6 @@ export const rightRailMetrics = [
     state: 'yellow',
     flipBack: {
       value: '+0.3d vs prior',
-      status: 'Band 4.5-5.0d',
     },
   },
   {
@@ -201,7 +197,6 @@ export const rightRailMetrics = [
     state: 'green',
     flipBack: {
       value: 'Adoption 37%',
-      status: 'Fresh 0m ago',
     },
   },
   {
@@ -211,8 +206,7 @@ export const rightRailMetrics = [
     status: 'Escalating',
     state: 'red',
     flipBack: {
-      value: 'Onboarding lag',
-      status: '+2 pts vs prior',
+      value: '+2 pts vs prior',
     },
   },
 ];
@@ -243,8 +237,7 @@ export const bottomStrip = {
       status: '-4 pts to target',
       state: 'green',
       flipBack: {
-        value: 'Baseline +11%',
-        status: '+3 pts vs base',
+        value: '+3 pts vs baseline',
       },
     },
     {
@@ -255,8 +248,7 @@ export const bottomStrip = {
       status: '-2 pts to target',
       state: 'yellow',
       flipBack: {
-        value: 'Target 95%',
-        status: '-2 pts vs target',
+        value: '-2 pts vs target',
       },
     },
     {
@@ -268,7 +260,6 @@ export const bottomStrip = {
       state: 'yellow',
       flipBack: {
         value: '+1 vs prior',
-        status: 'Fresh 0m ago',
       },
     },
   ],

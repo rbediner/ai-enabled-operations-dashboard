@@ -99,16 +99,16 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 
 .app-shell {
   width: 100vw; height: 100vh;
-  display: grid; place-items: stretch;
+  display: grid; place-items: center;
+  padding: 12px;
+  background: #0e131a;
 }
 
 .screen-frame {
   position: relative;
-  width: calc(100vw - 12px);
-  height: calc(100vh - 12px);
-  max-width: 1920px;
-  max-height: 1080px;
-  margin: 6px;
+  width: min(100vw - 24px, 1920px);
+  height: min(100vh - 24px, 1080px);
+  margin: 0;
   padding: 12px;
   display: flex;
   flex-direction: column;
@@ -207,29 +207,36 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 
 .flip-tile__face--back {
   transform: rotateY(180deg);
-  padding: 8px 10px;
-  gap: 4px;
+  padding: 10px 12px;
+  gap: 6px;
   overflow: hidden;
+  justify-content: center;
+  align-items: flex-start;
 }
 
-/* Back faces must hold brief context — shrink type so longer strings fit cleanly inside tile bounds. */
+/* Back faces show a single brief phrase — wrap it so narrow tiles don't clip. */
 .flip-tile__face--back .rail-tile__value,
 .flip-tile__face--back .ctrl-tile__value {
-  font-size: 16px;
-  line-height: 1;
-  letter-spacing: -0.02em;
-  max-width: 100%;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  white-space: normal;
   overflow: hidden;
-  text-overflow: ellipsis;
+  max-width: 100%;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  text-align: left;
 }
 
-.flip-tile__face--back .rail-tile__status,
-.flip-tile__face--back .ctrl-tile__status {
-  font-size: 9px;
-  letter-spacing: 0.06em;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.ctrl-tile--center .flip-tile__face--back {
+  align-items: center;
+}
+
+.ctrl-tile--center.flip-tile .flip-tile__face--back .ctrl-tile__value,
+.ctrl-tile--center .flip-tile__face--back .ctrl-tile__value {
+  text-align: center;
 }
 
 .flip-tile.is-flipped .flip-tile__surface {
@@ -553,10 +560,10 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 }
 
 .rail-tile__label {
-  font-size: 8px;
-  text-transform: uppercase; letter-spacing: 0.16em;
-  color: rgba(238,241,246,0.28); line-height: 1;
-  white-space: nowrap; font-weight: 500;
+  font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.14em;
+  color: rgba(238,241,246,0.44); line-height: 1;
+  white-space: nowrap; font-weight: 600;
 }
 
 .rail-tile__value {
@@ -568,10 +575,11 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 }
 
 .rail-tile__status {
-  font-size: 9px;
-  text-transform: uppercase; letter-spacing: 0.10em;
-  line-height: 1; white-space: nowrap;
-  color: rgba(238,241,246,0.32);
+  font-size: 11px;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  line-height: 1.1; white-space: nowrap;
+  color: rgba(238,241,246,0.52);
+  font-weight: 600;
 }
 
 .rail-tile.rt-pressure .rail-tile__value { color: rgba(242, 210, 75, 0.92); }
@@ -860,31 +868,31 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 
 /* Category tag — barely there, but readable */
 .hero-dial__eyebrow {
-  font-size: 9px; line-height: 1;
-  text-transform: uppercase; letter-spacing: 0.28em;
-  color: rgba(238,241,246,0.26);
-  font-weight: 500;
-  margin-bottom: 4px;
+  font-size: 11px; line-height: 1;
+  text-transform: uppercase; letter-spacing: 0.26em;
+  color: rgba(238,241,246,0.42);
+  font-weight: 600;
+  margin-bottom: 5px;
 }
 
 .hero-dial__title {
-  font-size: 14px;
+  font-size: 17px;
   line-height: 1;
   text-transform: uppercase;
-  letter-spacing: 0.18em;
-  color: rgba(238,241,246,0.78);
+  letter-spacing: 0.16em;
+  color: rgba(238,241,246,0.92);
   font-weight: 700;
-  margin-bottom: 8px;
+  margin-bottom: 9px;
 }
 
 .hero-dial__support {
   display: block;
-  max-width: 390px;
-  font-size: 12px;
-  line-height: 1.06;
+  max-width: 420px;
+  font-size: 14px;
+  line-height: 1.2;
   letter-spacing: 0.01em;
-  color: rgba(238,241,246,0.68);
-  margin-bottom: 16px;
+  color: rgba(238,241,246,0.82);
+  margin-bottom: 18px;
 }
 
 .hero-dial__content,
@@ -960,16 +968,16 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 }
 
 .hero-dial__ctx-label {
-  font-size: 10px;
-  text-transform: uppercase; letter-spacing: 0.18em;
-  color: rgba(238,241,246,0.36); font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase; letter-spacing: 0.16em;
+  color: rgba(238,241,246,0.58); font-weight: 700;
   white-space: nowrap; flex-shrink: 0;
 }
 
 .hero-dial__ctx-value {
-  font-size: 15px; font-weight: 800;
+  font-size: 18px; font-weight: 800;
   letter-spacing: -0.02em;
-  color: var(--text-dim); white-space: nowrap;
+  color: var(--text); white-space: nowrap;
   text-align: right;
 }
 
@@ -986,7 +994,7 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 /* Pressure driver — named suppressor, yellow */
 .hero-dial__ctx-value--driver {
   color: var(--yellow);
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 800;
   letter-spacing: -0.01em;
 }
@@ -1092,10 +1100,10 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 .ctrl-tile::before { display: none; }
 
 .ctrl-tile__label {
-  font-size: 8px; line-height: 1;
-  text-transform: uppercase; letter-spacing: 0.16em;
-  color: rgba(238,241,246,0.24); white-space: nowrap;
-  font-weight: 500;
+  font-size: 10px; line-height: 1;
+  text-transform: uppercase; letter-spacing: 0.14em;
+  color: rgba(238,241,246,0.42); white-space: nowrap;
+  font-weight: 600;
 }
 
 .ctrl-tile__value {
@@ -1106,17 +1114,17 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 }
 
 .ctrl-tile__context {
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1;
-  color: rgba(238,241,246,0.24);
+  color: rgba(238,241,246,0.42);
   white-space: nowrap;
   letter-spacing: 0.02em;
 }
 
 .ctrl-tile__status {
-  font-size: 10px;
-  line-height: 1;
-  color: rgba(238,241,246,0.42);
+  font-size: 12px;
+  line-height: 1.1;
+  color: rgba(238,241,246,0.60);
   white-space: nowrap;
   font-weight: 600;
   letter-spacing: -0.01em;
