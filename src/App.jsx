@@ -290,6 +290,24 @@ function App() {
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
 
+  useEffect(() => {
+    function updateScale() {
+      const padding = document.fullscreenElement ? 0 : 24;
+      const scale = Math.min(
+        (window.innerWidth - padding) / 1920,
+        (window.innerHeight - padding) / 1080,
+      );
+      document.documentElement.style.setProperty('--dash-scale', String(scale));
+    }
+    updateScale();
+    window.addEventListener('resize', updateScale);
+    document.addEventListener('fullscreenchange', updateScale);
+    return () => {
+      window.removeEventListener('resize', updateScale);
+      document.removeEventListener('fullscreenchange', updateScale);
+    };
+  }, []);
+
   function handleTabChange(nextTab) {
     setActiveTab(nextTab);
     setDisplayDashboard((currentDisplay) => applyActiveTabSnapshot(currentDisplay, targetDashboard, nextTab));

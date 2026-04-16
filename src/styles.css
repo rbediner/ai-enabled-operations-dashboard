@@ -100,29 +100,17 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 .app-shell {
   width: 100vw; height: 100vh;
   display: grid; place-items: center;
-  padding: 12px;
   background: #0e131a;
   overflow: hidden;
 }
 
-.app-shell.is-fullscreen {
-  padding: 0;
-}
-
-.app-shell.is-fullscreen .screen-frame {
-  width: min(100vw, calc(100vh * 16 / 9));
-  max-height: 100vh;
-  border-radius: 0;
-  border: none;
-}
-
 .screen-frame {
   position: relative;
-  aspect-ratio: 16 / 9;
-  width: min(100vw - 24px, calc((100vh - 24px) * 16 / 9), 1920px);
-  height: auto;
-  max-height: min(100vh - 24px, 1080px);
-  margin: 0;
+  width: 1920px;
+  height: 1080px;
+  flex-shrink: 0;
+  transform: scale(var(--dash-scale, 1));
+  transform-origin: center center;
   padding: 12px;
   display: flex;
   flex-direction: column;
