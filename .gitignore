@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Nested repo — separate GitHub Pages deploy target (to be retired)
+canopy-exec-dash-prt/
+
+# Build output
+dist/
+
+# Local env files
+.env
+.env.local
+.env.*.local
+
+# Editor / OS artifacts
+.DS_Store
+Thumbs.db
+*.swp
+*.swo

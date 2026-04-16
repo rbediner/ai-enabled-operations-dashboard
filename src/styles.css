@@ -1,0 +1,949 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap');
+
+/* ════════════════════════════════════════════
+   V2.7 OPERATING CONSOLE — SEMANTIC + PREMIUM
+   Dark liquid-glass. Instrument grade.
+   Three planes. One story per region.
+════════════════════════════════════════════ */
+
+:root {
+  color-scheme: dark;
+  font-family: 'DM Sans', sans-serif;
+
+  /* ── Surface palette ── */
+  --bg:             #13181f;
+  --tile-rail:      #171c26;   /* Layer 1 — signal channels, recede */
+  --tile-stable:    #1d2430;   /* Layer 2 — working surface */
+  --tile-watch:     #212837;   /* Layer 2 — present */
+  --tile-pressure:  #242c38;   /* Layer 2 — elevated */
+  --tile-critical:  #240f14;   /* Layer 3 — alert, not surface */
+  --tile-hero:      #0c1520;   /* Layer 3 — deepest plane, truth engine */
+  --tile-directive: #190f07;   /* Layer 3 — command */
+  --top-bar:        #161d2a;
+
+  /* ── Border palette ── */
+  --line-stable:    rgba(255,255,255,0.036);
+  --line-watch:     rgba(255,255,255,0.068);
+  --line-pressure:  rgba(255,255,255,0.088);
+  --line-critical:  rgba(255, 90, 95, 0.50);
+  --line-directive: rgba(255, 123, 77, 0.48);
+  /* Hero gets its own border — warm to reinforce plane separation */
+  --line-hero:      rgba(255,255,255,0.08);
+
+  /* ── Accent edge (left bar) ── */
+  --edge-stable:    rgba(255,255,255,0.06);
+  --edge-watch:     rgba(242, 210, 75, 0.55);
+  --edge-pressure:  rgba(242, 210, 75, 0.85);
+  --edge-critical:  rgba(255, 90, 95, 1);
+  --edge-green:     rgba(143, 209, 79, 0.85);
+
+  /* ── Text palette ── */
+  --text:         #eef1f6;
+  --text-dim:     rgba(238,241,246,0.76);
+  --text-quiet:   rgba(238,241,246,0.52);
+  --text-ghost:   rgba(238,241,246,0.32);
+  --text-whisper: rgba(238,241,246,0.20);
+
+  /* ── Signal colors ── */
+  --green:      #8fd14f;
+  --green-mid:  #aed97a;
+  --yellow:     #f2d24b;
+  --amber:      #e8a020;
+  --red:        #ff5a5f;
+  --cyan:       #36d6e7;
+  --orange:     #ff7b4d;
+  --slate:      #8d9bad;
+
+  /* ── TYPE RAMP (locked) ── */
+  --sz-hero:    120px;
+  --sz-truth:   60px;
+  --sz-signal:  30px;
+  --sz-control: 32px;
+  --sz-label:   11px;
+  --sz-support: 13px;
+  --sz-micro:   10px;
+
+  /* ── Geometry ── */
+  --radius:     16px;
+  --radius-sm:  10px;
+  --gap:        10px;
+  --edge-w:     3px;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  width: 100%; height: 100%; margin: 0;
+}
+
+body {
+  background: #0e131a;
+  color: var(--text);
+  overflow: hidden;
+}
+
+button { font: inherit; color: inherit; cursor: pointer; border: none; background: none; }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+/* ════════════════════════════════════════════
+   SCREEN SHELL
+   V2.7: deeper base, more controlled vignette
+════════════════════════════════════════════ */
+
+.app-shell {
+  width: 100vw; height: 100vh;
+  display: grid; place-items: stretch;
+}
+
+.screen-frame {
+  position: relative;
+  width: calc(100vw - 12px);
+  height: calc(100vh - 12px);
+  max-width: 1920px;
+  max-height: 1080px;
+  margin: 6px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  overflow: hidden;
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,0.052);
+  /* Liquid glass: deep diagonal with cool-to-dark gradient + inner rim */
+  background: linear-gradient(158deg, #192030 0%, #131b27 38%, #0f1620 72%, #0d1319 100%);
+  box-shadow:
+    0 32px 80px rgba(0,0,0,0.70),
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    inset 0 -1px 0 rgba(0,0,0,0.30);
+}
+
+/* ════════════════════════════════════════════
+   STATE SYSTEM — TILE BASE
+════════════════════════════════════════════ */
+
+.tile {
+  position: relative;
+  border-radius: var(--radius);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.tile::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 20%; bottom: 20%;
+  width: var(--edge-w);
+  border-radius: 999px;
+  background: var(--tile-edge-color, var(--edge-stable));
+  z-index: 1;
+}
+
+/* Stable — no edge bar, recedes quietly */
+.tile-stable {
+  background: linear-gradient(172deg, #202a38 0%, #1b2430 100%);
+  border: 1px solid var(--line-stable);
+  --tile-edge-color: var(--edge-stable);
+}
+.tile-stable::before { opacity: 0; }
+
+/* Watch — present, reads clearly */
+.tile-watch {
+  background: linear-gradient(172deg, #252e3e 0%, #202836 100%);
+  border: 1px solid var(--line-watch);
+  --tile-edge-color: var(--edge-watch);
+}
+
+/* Pressure — elevated surface */
+.tile-pressure {
+  background: linear-gradient(172deg, #282f3d 0%, #242b37 100%);
+  border: 1px solid var(--line-pressure);
+  --tile-edge-color: var(--edge-pressure);
+}
+
+/* Critical — system alert, not a surface. Flat dark. */
+.tile-critical {
+  background: var(--tile-critical);
+  border: 1px solid var(--line-critical);
+  --tile-edge-color: var(--edge-critical);
+}
+
+.tile-green { --tile-edge-color: var(--edge-green); }
+
+/* ════════════════════════════════════════════
+   TOP STATUS BAR
+════════════════════════════════════════════ */
+
+.top-status-bar {
+  height: 72px;
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: 200px 1fr 340px;
+  gap: var(--gap);
+}
+
+/* T1 — Logo */
+.logo-panel {
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--top-bar);
+  border: 1px solid var(--line-stable);
+  border-radius: var(--radius);
+}
+
+.logo-panel__logo {
+  width: 36px; height: auto;
+  flex-shrink: 0; opacity: 0.88;
+}
+
+.logo-panel__copy {
+  display: flex; flex-direction: column; gap: 3px;
+  min-width: 0; overflow: hidden;
+}
+
+.logo-panel__eyebrow {
+  font-size: var(--sz-micro);
+  text-transform: uppercase; letter-spacing: 0.18em;
+  color: var(--text-ghost); line-height: 1;
+  white-space: nowrap;
+}
+
+.logo-panel__name {
+  font-size: 12px; font-weight: 800;
+  letter-spacing: -0.01em; line-height: 1;
+  color: var(--text); white-space: nowrap;
+  overflow: hidden; text-overflow: clip;
+}
+
+/* T2 — Date / context strip */
+.freshness-panel {
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  background: var(--top-bar);
+  border: 1px solid var(--line-stable);
+  border-radius: var(--radius);
+}
+
+.freshness-panel__primary {
+  display: flex; align-items: baseline;
+  gap: 10px; white-space: nowrap;
+}
+
+.freshness-panel__day {
+  font-size: 22px; font-weight: 800;
+  letter-spacing: -0.04em; color: var(--text); line-height: 1;
+}
+
+.freshness-panel__time {
+  font-size: 18px; font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--text-dim); line-height: 1;
+}
+
+.freshness-panel__secondary {
+  display: flex; align-items: center;
+  gap: 6px; white-space: nowrap;
+}
+
+.freshness-panel__secondary span {
+  font-size: var(--sz-micro);
+  color: var(--cyan); text-transform: uppercase;
+  letter-spacing: 0.14em; line-height: 1;
+}
+
+/* Operating mode summary — dim separator then mode name */
+.freshness-panel__mode {
+  color: var(--text-ghost) !important;
+  letter-spacing: 0.12em !important;
+  padding-left: 8px;
+  border-left: 1px solid rgba(255,255,255,0.10);
+  margin-left: 4px;
+}
+
+.signal-tick {
+  width: 5px; height: 5px; border-radius: 50%;
+  flex-shrink: 0; background: var(--green);
+  animation: dotPulse 3s ease-in-out infinite;
+}
+
+/* ── T3-T6 STATUS BADGES — Executive HUD ──
+   Each answers a real operating question.
+   Left accent bar = state signal.
+   Green badges recede. Yellow/red hold. */
+.status-badge-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--gap);
+}
+
+.status-badge {
+  position: relative;
+  padding: 0 11px 0 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  background: var(--top-bar);
+  border: 1px solid var(--line-stable);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+/* State accent bar — replaces corner dot */
+.status-badge::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 20%; bottom: 20%;
+  width: 2px;
+  border-radius: 0 1px 1px 0;
+  background: currentColor;
+  opacity: 0.40;
+}
+
+.status-badge__label {
+  font-size: 8px;
+  text-transform: uppercase; letter-spacing: 0.16em;
+  color: rgba(238,241,246,0.38); line-height: 1;
+  font-weight: 600; white-space: nowrap;
+}
+
+.status-badge__value {
+  font-size: 17px; font-weight: 700;
+  letter-spacing: -0.03em; line-height: 1;
+  color: currentColor; white-space: nowrap;
+}
+
+.status-badge__dot { display: none; }
+
+.status-badge.s-green  { color: var(--green);  opacity: 0.56; }
+.status-badge.s-yellow { color: var(--yellow); }
+.status-badge.s-red    { color: var(--red); }
+
+/* ════════════════════════════════════════════
+   MAIN GRID
+════════════════════════════════════════════ */
+
+.main-grid {
+  flex: 1; min-height: 0;
+  display: grid;
+  grid-template-columns: 108px 274px 1fr 274px 108px;
+  gap: var(--gap);
+}
+
+.column-rail,
+.column-stack {
+  display: flex; flex-direction: column;
+  gap: var(--gap);
+}
+
+.column-rail > *,
+.column-stack > * { flex: 1; min-height: 0; }
+
+.center-column {
+  display: flex; flex-direction: column;
+  gap: var(--gap); min-width: 0;
+}
+
+/* ════════════════════════════════════════════
+   RAIL TILES — Layer 1
+   Signal channels. Not cards.
+   D1-D4 (demand), R1-R4 (risk)
+════════════════════════════════════════════ */
+
+.rail-tile {
+  padding: 8px 6px 8px 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.rail-tile::before { display: none; }
+
+/* Top accent flash */
+.rail-tile::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 10%; right: 10%;
+  height: 1px; border-radius: 999px;
+  background: var(--rail-accent, transparent);
+  opacity: 0.50;
+}
+
+/* Layer 1: darker than working surface */
+.rail-tile.tile-stable {
+  background: var(--tile-rail);
+  border: 1px solid rgba(255,255,255,0.026);
+}
+
+.rail-tile.tile-pressure {
+  background: #1b2331;
+  border: 1px solid rgba(242,210,75,0.11);
+}
+
+.rail-tile__label {
+  font-size: 8px;
+  text-transform: uppercase; letter-spacing: 0.16em;
+  color: var(--text-ghost); line-height: 1;
+  white-space: nowrap; font-weight: 500;
+}
+
+.rail-tile__value {
+  font-size: var(--sz-signal);
+  font-weight: 800; letter-spacing: -0.05em;
+  line-height: 0.9; white-space: nowrap;
+  color: var(--text);
+}
+
+.rail-tile__status {
+  font-size: 9px;
+  text-transform: uppercase; letter-spacing: 0.10em;
+  line-height: 1; white-space: nowrap;
+  color: var(--text-ghost);
+}
+
+.rail-tile.rt-pressure .rail-tile__value { color: var(--yellow); }
+.rail-tile.rt-pressure { --rail-accent: var(--yellow); }
+
+.rail-tile.rt-stable .rail-tile__value { color: var(--text-dim); }
+
+.rail-tile.rt-green .rail-tile__value { color: var(--text); }
+.rail-tile.rt-green { --rail-accent: var(--green); }
+
+/* ── R1 CAPACITY — breaks the rail system. System alert. ── */
+.rail-tile.rt-critical .rail-tile__value { color: var(--red); }
+.rail-tile.rt-critical { --rail-accent: var(--red); }
+
+.rail-tile.tile-critical {
+  background: #230f14;
+  border: 1.5px solid rgba(255, 90, 95, 0.50);
+  box-shadow: inset 0 0 28px rgba(255, 90, 95, 0.10),
+              0 0 0 1px rgba(255, 90, 95, 0.10);
+}
+
+/* Edge bar re-enabled — full height, full strength */
+.rail-tile.rt-critical::before {
+  display: block;
+  top: 0; bottom: 0;
+  background: var(--edge-critical);
+  border-radius: 0 1px 1px 0;
+  width: 3px;
+}
+
+.rail-tile.rt-critical .rail-tile__label,
+.rail-tile.rt-critical .rail-tile__status {
+  color: rgba(255, 90, 95, 0.72);
+}
+
+/* Client friction gets a little more visual urgency than generic red alerts so it can outrank cycle time drift. */
+.rail-tile--client-risk.tile-critical {
+  background: linear-gradient(172deg, #271119 0%, #1f0d14 100%);
+  box-shadow: inset 0 0 34px rgba(255, 90, 95, 0.14),
+              0 0 0 1px rgba(255, 90, 95, 0.12);
+}
+
+.rail-tile--client-risk .rail-tile__status {
+  color: rgba(255, 123, 77, 0.92);
+  font-weight: 700;
+}
+
+/* ════════════════════════════════════════════
+   STACK TILES — Layer 2
+   C1-C3: demand quality (left)
+   O1-O3: delivery health (right)
+   Glass top highlight. Labels: intentional.
+════════════════════════════════════════════ */
+
+.stack-tile {
+  padding: 18px 20px 16px 26px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0;
+}
+
+/* Glass top-edge highlight */
+.stack-tile::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 50%, transparent 100%);
+  pointer-events: none; z-index: 2;
+}
+
+.stack-tile__label {
+  font-size: var(--sz-label);
+  text-transform: uppercase; letter-spacing: 0.16em;
+  color: var(--text-quiet); line-height: 1;
+  margin-bottom: 5px; white-space: nowrap;
+  font-weight: 500;
+}
+
+.stack-tile__value {
+  font-size: var(--sz-truth);
+  font-weight: 800; letter-spacing: -0.06em;
+  line-height: 0.88; color: var(--text);
+  white-space: nowrap; margin-bottom: 6px;
+}
+
+/* Context line: target/band — quiet, grounded */
+.stack-tile__context {
+  font-size: var(--sz-support);
+  color: var(--text-ghost); line-height: 1;
+  white-space: nowrap;
+}
+
+/* Status line: insight — speaks to operating meaning */
+.stack-tile__status {
+  font-size: var(--sz-support);
+  line-height: 1; white-space: nowrap;
+  margin-top: 4px; font-weight: 500;
+}
+
+/* State modifiers */
+.stack-tile.st-stable .stack-tile__value { color: var(--text-dim); }
+
+.stack-tile.st-watch .stack-tile__value  { color: var(--text); }
+.stack-tile.st-watch .stack-tile__status { color: var(--yellow); }
+
+.stack-tile.st-pressure .stack-tile__value  { color: var(--text); }
+.stack-tile.st-pressure .stack-tile__status { color: var(--yellow); font-weight: 700; }
+
+/* ── C1 FORECAST — primary commercial signal ── */
+.st-forecast {
+  background: linear-gradient(172deg, #262e3f 0%, #212b3c 100%);
+  border-color: rgba(242, 210, 75, 0.15);
+}
+
+.st-forecast .stack-tile__label { color: rgba(238,241,246,0.58); }
+.st-forecast .stack-tile__value { color: var(--text); letter-spacing: -0.065em; }
+.st-forecast .stack-tile__status { color: var(--yellow); font-weight: 700; }
+
+/* ── O3 ONBOARDING — client friction is an operating concern ── */
+.st-onboarding {
+  background: linear-gradient(172deg, #252d3d 0%, #202835 100%);
+  border-color: rgba(242, 210, 75, 0.13);
+}
+
+.st-onboarding .stack-tile__label { color: rgba(238,241,246,0.56); }
+.st-onboarding .stack-tile__status { color: var(--yellow); font-weight: 700; }
+
+/* ════════════════════════════════════════════
+   VIEW TABS — M1 / M2 / M3
+   V2.7: polished, slightly more readable
+════════════════════════════════════════════ */
+
+.view-tabs {
+  height: 42px; flex-shrink: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--gap);
+}
+
+.view-tabs__tab {
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line-stable);
+  background: linear-gradient(172deg, #1f2a38 0%, #1c2632 100%);
+  transition: background 200ms, border-color 200ms;
+  overflow: hidden;
+}
+
+/* Glass highlight on tabs */
+.view-tabs__tab::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.05) 50%, transparent 100%);
+}
+
+.view-tabs__label {
+  font-size: var(--sz-label);
+  font-weight: 700; letter-spacing: 0.13em;
+  text-transform: uppercase; color: var(--text-ghost);
+  line-height: 1; position: relative; z-index: 1;
+}
+
+.view-tabs__tab.is-active {
+  background: linear-gradient(172deg, #27303f 0%, #242d3c 100%);
+  border-color: var(--line-pressure);
+}
+
+.view-tabs__tab.is-active .view-tabs__label { color: var(--text); }
+
+.view-tabs__tab.is-active::after {
+  content: ''; position: absolute;
+  left: 12px; right: 12px; bottom: 0;
+  height: 2px; border-radius: 999px;
+}
+
+.accent-yellow.is-active::after { background: var(--yellow); }
+.accent-cyan.is-active::after   { background: var(--cyan); }
+.accent-green.is-active::after  { background: var(--green); }
+
+/* ════════════════════════════════════════════
+   HERO ZONE — H1-H4
+   Layer 3. Deepest plane. Truth engine.
+   V2.7: Instrument composition.
+   Four-answer context block below value.
+════════════════════════════════════════════ */
+
+.hero-zone {
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column;
+  gap: var(--gap);
+}
+
+/* Liquid glass — deepest surface, center-lit, vignette edges */
+.hero-dial {
+  flex: 1; min-height: 0;
+  position: relative;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(ellipse at 50% 42%, #13203a 0%, #0c1a2e 40%, #09121e 72%, #070f18 100%);
+  border-radius: var(--radius);
+  border: 1px solid var(--line-hero);
+  overflow: hidden;
+  box-shadow:
+    inset 0 0 120px rgba(0,0,0,0.42),
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    0 8px 40px rgba(0,0,0,0.45),
+    0 0 0 1px rgba(255,255,255,0.035);
+}
+
+/* Value-zone ambient glow — warm pressure signal */
+.hero-dial::after {
+  content: '';
+  position: absolute;
+  inset: 18% 24%;
+  background: radial-gradient(ellipse, rgba(242,210,75,0.065) 0%, transparent 62%);
+  pointer-events: none;
+}
+
+.hero-dial__svg {
+  position: absolute;
+  inset: 32px 70px 48px;
+}
+
+.hero-dial__track,
+.hero-dial__progress,
+.hero-dial__halo {
+  fill: none;
+  transform: rotate(-90deg);
+  transform-origin: 160px 160px;
+}
+
+/* Ring recedes — value and context block dominate */
+.hero-dial__track {
+  stroke: rgba(255,255,255,0.025);
+  stroke-width: 6;
+}
+
+.hero-dial__progress {
+  stroke: url(#ringGradient);
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 900ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.hero-dial__halo { display: none; }
+
+/* ── Hero content composition ── */
+.hero-dial__content {
+  position: relative; z-index: 2;
+  width: 64%;
+  display: flex; flex-direction: column;
+  align-items: center;
+  gap: 0; text-align: center;
+}
+
+/* Category tag — barely there, but readable */
+.hero-dial__label {
+  font-size: 9px; line-height: 1;
+  text-transform: uppercase; letter-spacing: 0.28em;
+  color: rgba(238,241,246,0.32);
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.hero-dial__support {
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: var(--text-ghost);
+  margin-bottom: 12px;
+}
+
+/* Primary value — maximum contrast, anchored */
+.hero-dial__value {
+  font-size: var(--sz-hero);
+  line-height: 0.84; letter-spacing: -0.07em;
+  font-weight: 800; color: #ffffff;
+  position: relative;
+  margin-bottom: 22px;
+}
+
+/* Instrument rule — separates reading from context block */
+.hero-dial__value::after {
+  content: '';
+  position: absolute;
+  bottom: -11px;
+  left: 50%; transform: translateX(-50%);
+  width: 36px; height: 1px;
+  background: rgba(242, 210, 75, 0.22);
+}
+
+/* ── Context block: the four answers ──
+   Where  / how far / trend / driver
+   Two-column label : value table */
+.hero-dial__context-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  max-width: 200px;
+}
+
+.hero-dial__context-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+}
+
+/* Driver row: slightly more visual weight */
+.hero-dial__context-row--driver {
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.hero-dial__ctx-label {
+  font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.18em;
+  color: var(--text-ghost); font-weight: 500;
+  white-space: nowrap; flex-shrink: 0;
+}
+
+.hero-dial__ctx-value {
+  font-size: 13px; font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-dim); white-space: nowrap;
+  text-align: right;
+}
+
+/* Gap — negative delta, amber */
+.hero-dial__ctx-value--gap {
+  color: var(--amber);
+}
+
+/* Trend — positive delta, green-mid */
+.hero-dial__ctx-value--trend {
+  color: var(--green-mid);
+}
+
+/* Pressure driver — named suppressor, yellow */
+.hero-dial__ctx-value--driver {
+  color: var(--yellow);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+/* H2-H4 Target controls */
+.hero-controls {
+  height: 56px; flex-shrink: 0;
+  display: grid;
+  grid-template-columns: 64px 1fr 64px;
+  gap: var(--gap);
+}
+
+.hero-control {
+  display: grid; place-items: center;
+  background: linear-gradient(172deg, #111e30 0%, #0d1826 100%);
+  border: 1px solid rgba(255,255,255,0.058);
+  border-radius: var(--radius);
+}
+
+.hero-control--adj {
+  font-size: 26px; font-weight: 700;
+  color: var(--yellow); letter-spacing: -0.04em;
+}
+
+.hero-control--display {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 3px;
+}
+
+.hero-control__label {
+  font-size: var(--sz-micro); line-height: 1;
+  text-transform: uppercase; letter-spacing: 0.16em;
+  color: var(--text-ghost);
+}
+
+.hero-control--display strong {
+  font-size: 38px; line-height: 0.9;
+  font-weight: 800; letter-spacing: -0.05em;
+  color: var(--text);
+}
+
+/* ════════════════════════════════════════════
+   BOTTOM CONTROL STRIP — B1-B11
+   What targets matter. What should happen now.
+════════════════════════════════════════════ */
+
+.bottom-control-strip {
+  height: 96px; flex-shrink: 0;
+  display: grid;
+  grid-template-columns: 90px 1fr 148px 1fr 70px;
+  gap: var(--gap);
+}
+
+.bottom-group { display: grid; gap: 6px; }
+
+.bottom-group--nav   { grid-template-columns: repeat(2, 1fr); }
+.bottom-group--left  { grid-template-columns: repeat(3, 1fr); }
+.bottom-group--right { grid-template-columns: repeat(3, 1fr); }
+.bottom-group--util  { grid-template-columns: repeat(2, 1fr); }
+
+.ctrl-tile {
+  position: relative;
+  padding: 10px 12px;
+  display: flex; flex-direction: column;
+  justify-content: center; gap: 4px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255,255,255,0.062);
+  background: linear-gradient(172deg, #1d2838 0%, #1a2333 100%);
+  overflow: hidden;
+}
+
+.ctrl-tile::before { display: none; }
+
+.ctrl-tile__label {
+  font-size: 8px; line-height: 1;
+  text-transform: uppercase; letter-spacing: 0.16em;
+  color: var(--text-ghost); white-space: nowrap;
+  font-weight: 500;
+}
+
+.ctrl-tile__value {
+  font-size: var(--sz-control);
+  font-weight: 800; letter-spacing: -0.04em;
+  line-height: 0.92; color: var(--text);
+  white-space: nowrap;
+}
+
+/* Watch tiles — targets that need attention */
+.ctrl-tile.ct-watch {
+  border-color: rgba(242,210,75,0.20);
+  background: linear-gradient(172deg, #232d3c 0%, #202a37 100%);
+}
+
+/* Icon tiles — slightly recessed */
+.ctrl-tile--icon {
+  align-items: center; justify-content: center;
+  gap: 0; opacity: 0.70;
+}
+
+.ctrl-icon {
+  width: 17px; height: 17px;
+  position: relative; color: var(--text-dim);
+}
+
+.ctrl-icon::before,
+.ctrl-icon::after {
+  content: ''; position: absolute; inset: 0;
+  border: 1.5px solid currentColor; border-radius: 3px;
+}
+
+.ctrl-icon--home::after {
+  inset: 6px 3px 0; border-top: none;
+  border-radius: 0 0 2px 2px;
+}
+
+.ctrl-icon--back::before {
+  border: none; inset: 3px;
+  border-left: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+}
+
+.ctrl-icon--alerts::before { border-radius: 50% 50% 40% 40%; }
+.ctrl-icon--alerts::after  {
+  inset: auto 6px -2px 6px; height: 4px;
+  border-radius: 999px;
+}
+
+.ctrl-icon--screen::after {
+  inset: auto 3px -3px; height: 2px;
+  border: none; background: currentColor;
+}
+
+/* ── B6 FOCUS NOW — Layer 3 command directive ──
+   Premium dark amber. Hard edge. Directive, not alert. */
+.focus-now-tile {
+  position: relative;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 3px; padding: 10px 14px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(255, 123, 77, 0.42);
+  background: linear-gradient(172deg, #1f1108 0%, #170d06 100%);
+  overflow: hidden;
+}
+
+/* Full-width amber floor line — command signal */
+.focus-now-tile::after {
+  content: ''; position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 2px; border-radius: 0;
+  background: linear-gradient(90deg, transparent 0%, var(--orange) 30%, var(--orange) 70%, transparent 100%);
+  opacity: 0.90;
+}
+
+.focus-now-tile__label {
+  font-size: 8px; line-height: 1;
+  text-transform: uppercase; letter-spacing: 0.24em;
+  color: rgba(255, 123, 77, 0.80);
+  font-weight: 700;
+}
+
+/* Command directive — not a metric, not a title */
+.focus-now-tile__value {
+  font-size: 16px; font-weight: 800;
+  letter-spacing: -0.02em; text-align: center;
+  color: #f0ece8; line-height: 1.10;
+  white-space: nowrap;
+}
+
+.focus-now-tile__sub {
+  font-size: 10px; line-height: 1;
+  color: rgba(255, 123, 77, 0.65);
+  white-space: nowrap; font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+/* ════════════════════════════════════════════
+   ANIMATION
+════════════════════════════════════════════ */
+
+@keyframes dotPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(143,209,79,0.6); opacity: 1; }
+  70%  { box-shadow: 0 0 0 5px transparent; opacity: 0.8; }
+  100% { box-shadow: 0 0 0 0 transparent; opacity: 1; }
+}
