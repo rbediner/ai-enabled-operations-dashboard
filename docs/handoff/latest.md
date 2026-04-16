@@ -2,20 +2,21 @@
 **Session date:** 2026-04-16
 
 ## What Changed
-- Implemented the staged live interaction layer for approved tiles only.
-- Added manual and sparse auto-flip behavior for eligible secondary tiles only: `D1`, `D2`, `D4`, `R2`, `R3`, `R4`, `B7`, `B8`, `B9`.
-- Added the tiny static top-right flip affordance on eligible tiles only.
-- Added presentation mode on `B11` to suppress flip behavior and non-essential micro-motion.
-- Tightened cadence handling so one visible update happens per 4-second slot, with override throttling in the live model.
-- Updated targeted unit and browser verification for flip eligibility, cadence isolation, and presentation mode.
+- Fixed flip back-face text overflow: shortened four overly long back-face strings (D4, R2, R4, B7) and tightened back-face typography (16px value, 9px status) with ellipsis clamping so no back-face content can overflow tile bounds.
+- Added passive-wall-mode auto-cycle for the center lens tabs (Margin → Revenue → AI → Margin) at a 30-second interval. Manual tab clicks still work and now pause auto-cycle for 90 seconds before it resumes. Auto-cycle is suppressed while presentation mode is active.
 
 ## Current Branch / Head
-- Branch: `staging`
-- Implementation commit: `91be2f5` (`Implement live tile flips and presentation mode`)
+- Branch: `staging` (fix commit pushed)
+- Branch: `prod` (fast-forwarded from staging and pushed)
+- See latest commit hashes via `git log --oneline -3` on each branch.
 
 ## Cloudflare Preview Path
 - Local app: `http://127.0.0.1:5173/`
-- Active review tunnel: `https://david-museums-archives-device.trycloudflare.com`
+- Stakeholder tunnel: run `npm run dev` + `npm run tunnel` to regenerate a `https://...trycloudflare.com` URL on demand.
+
+## Production Release Status
+- `prod` has been fast-forwarded from the verified `staging` commit and pushed.
+- GitHub Actions Pages workflow deploys from `prod` on push.
 
 ## Exact Next Step
-- Review the staging tunnel URL above and approve or request changes before any `staging` to `prod` promotion.
+- Release complete. Confirm the GitHub Pages deploy succeeded for the new `prod` head in the source repo Actions tab.

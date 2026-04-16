@@ -207,6 +207,29 @@ button { font: inherit; color: inherit; cursor: pointer; border: none; backgroun
 
 .flip-tile__face--back {
   transform: rotateY(180deg);
+  padding: 8px 10px;
+  gap: 4px;
+  overflow: hidden;
+}
+
+/* Back faces must hold brief context — shrink type so longer strings fit cleanly inside tile bounds. */
+.flip-tile__face--back .rail-tile__value,
+.flip-tile__face--back .ctrl-tile__value {
+  font-size: 16px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.flip-tile__face--back .rail-tile__status,
+.flip-tile__face--back .ctrl-tile__status {
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .flip-tile.is-flipped .flip-tile__surface {

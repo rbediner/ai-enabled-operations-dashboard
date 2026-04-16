@@ -47,6 +47,7 @@ function App() {
 
   const lastOverrideAtRef = useRef(Number.NEGATIVE_INFINITY);
   const suppressUntilRef = useRef(Number.NEGATIVE_INFINITY);
+  const tabCyclePauseUntilRef = useRef(0);
   const flipTimersRef = useRef({});
   const nextAutoFlipAtRef = useRef({});
   const processedVisualStepRef = useRef(Number.NEGATIVE_INFINITY);
@@ -276,6 +277,30 @@ function App() {
     setDisplayDashboard((currentDisplay) => applyActiveTabSnapshot(currentDisplay, targetDashboard, nextTab));
   }
 
+  function cycleTab() {
+    const order = ['M1', 'M2', 'M3'];
+    const currentIdx = order.indexOf(activeTabRef.current);
+    const nextTab = order[(currentIdx + 1) % order.length];
+    setActiveTab(nextTab);
+    setDisplayDashboard((currentDisplay) => applyActiveTabSnapshot(currentDisplay, targetDashboardRef.current, nextTab));
+  }
+
+  function handleManualTabChange(nextTab) {
+    tabCyclePauseUntilRef.current = Date.now() + 90_000;
+    handleTabChange(nextTab);
+  }
+
+  useEffect(() => {
+    /* Passive wall-mode discoverability: quietly cycle the center lens every 30s unless in presentation mode or paused by manual interaction. */
+    const tabTimer = window.setInterval(() => {
+      if (presentationModeRef.current) return;
+      if (Date.now() < tabCyclePauseUntilRef.current) return;
+      cycleTab();
+    }, 30_000);
+
+    return () => window.clearInterval(tabTimer);
+  }, []);
+
   return (
     <div className={`app-shell ${presentationMode ? 'is-presentation-mode' : ''}`}>
       <div className="screen-frame" data-scenario-step={scenarioStep}>
@@ -299,7 +324,7 @@ function App() {
           <LeftStack metrics={displayDashboard.leftStackMetrics} liveSignalId={liveSignalId} />
 
           <section className="center-column">
-            <CenterViewTabs tabs={lensTabs} activeTab={activeTab} setActiveTab={handleTabChange} />
+            <CenterViewTabs tabs={lensTabs} activeTab={activeTab} setActiveTab={handleManualTabChange} />
             <HeroMarginDial
               hero={activeView.hero}
               controls={activeView.controls}

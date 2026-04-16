@@ -40,7 +40,7 @@ export const leftRailMetrics = [
     state: 'green',
     flipBack: {
       value: '+2 pts',
-      status: 'Band 32% to 36%',
+      status: 'Band 32-36%',
     },
   },
 ];
@@ -190,7 +190,7 @@ export const rightRailMetrics = [
     state: 'yellow',
     flipBack: {
       value: '+0.3d vs prior',
-      status: 'Band 4.5d to 5.0d',
+      status: 'Band 4.5-5.0d',
     },
   },
   {
@@ -211,7 +211,7 @@ export const rightRailMetrics = [
     status: 'Escalating',
     state: 'red',
     flipBack: {
-      value: 'Driver: onboarding lag',
+      value: 'Onboarding lag',
       status: '+2 pts vs prior',
     },
   },
@@ -244,7 +244,7 @@ export const bottomStrip = {
       state: 'green',
       flipBack: {
         value: 'Baseline +11%',
-        status: '+3 pts vs baseline',
+        status: '+3 pts vs base',
       },
     },
     {
