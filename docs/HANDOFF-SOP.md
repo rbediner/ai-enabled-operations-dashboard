@@ -101,14 +101,12 @@ If sync drift is suspected:
 | Stakeholder preview page | `https://rbediner.github.io/canopy-exec-dash-prt/` | Live |
 | Production build | `npm run build && npm run preview` | Ready |
 | Source repo | `https://github.com/rbediner/canopy-exec-dashboard` | Live |
-| GitHub Pages (prod) | Deploys from `prod` branch via GitHub Actions in source repo | Ready after Pages is enabled on source repo |
+| GitHub Pages (prod) | Deploys from `prod` branch via GitHub Actions in source repo | Enabled; waiting for first prod promotion with workflow files |
 
 ### One-Time GitHub Setup Still Required
 1. In `rbediner/canopy-exec-dashboard`, add a repo secret named `PREVIEW_PUBLISH_TOKEN`
 2. That token must have write access to `rbediner/canopy-exec-dash-prt`
-3. In `rbediner/canopy-exec-dashboard`, open Settings → Pages
-4. Set the build source to `GitHub Actions`
-5. After that:
+3. After that:
    - pushes to `staging` will publish the built preview artifact to the preview repo
    - pushes to `prod` will deploy the live site from the source repo Pages workflow
 

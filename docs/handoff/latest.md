@@ -93,8 +93,8 @@ The nested `canopy-exec-dash-prt/` folder should be deleted from disk after any 
 ## Remaining Issues
 
 1. `PREVIEW_PUBLISH_TOKEN` still needs to be added as a secret to `rbediner/canopy-exec-dashboard` before the staging preview workflow can publish automatically.
-2. GitHub Pages still needs to be enabled in `rbediner/canopy-exec-dashboard` with build source set to `GitHub Actions`.
-3. The local nested folder `canopy-exec-dash-prt/` should be removed from disk once everyone is comfortable that it is no longer needed.
+2. The first preview workflow run already confirmed that the only automation blocker is the missing preview secret.
+3. The local nested folder `canopy-exec-dash-prt/` has been removed from disk; do not recreate it.
 4. There are unrelated uncommitted dashboard implementation changes currently on `staging`; do not overwrite or discard them accidentally.
 
 ---
