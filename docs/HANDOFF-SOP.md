@@ -46,19 +46,26 @@ npm run dev
 3. Start the local dev server and share a Cloudflare tunnel for stakeholder approval:
    ```bash
    npm run dev
-   cloudflared tunnel --url http://localhost:5173
+   npm run tunnel
    ```
-4. Once visually approved, promote to `prod` (fast-forward only):
+4. Wait for `cloudflared` to print a public `https://...trycloudflare.com` URL, then paste that exact URL into the current session notes or handoff while review is active.
+5. Once visually approved, promote to `prod` (fast-forward only):
    ```bash
    git checkout prod
    git merge --ff-only staging
    git push origin prod
    git checkout staging
    ```
-5. GitHub Actions deploys to GitHub Pages automatically on push to `prod`
-6. Overwrite `docs/handoff/latest.md` with the current session state
+6. GitHub Actions deploys to GitHub Pages automatically on push to `prod`
+7. **Monitor the deploy to completion — do not report release as done until it is green.** Use:
+   ```bash
+   gh run watch <run-id> --repo rbediner/canopy-exec-dashboard --exit-status
+   ```
+   or poll `gh run list --repo rbediner/canopy-exec-dashboard --limit 1`. If the run fails, diagnose with `gh run view <run-id> --log-failed`, fix the root cause (code, workflow file, or repo settings), re-run, and only report success once a run completes `success` AND `https://rbediner.github.io/canopy-exec-dashboard/` serves the new build.
+8. Overwrite `docs/handoff/latest.md` with the current session state, including whether a Cloudflare review URL was generated for that session, the final `prod` commit hash, and confirmation that the Pages deploy ran green.
 
 **Do not promote a commit to `prod` that has not been visually verified on staging.**
+**Do not report a release as complete until the Pages deploy has finished successfully.**
 
 ---
 
@@ -67,9 +74,10 @@ npm run dev
 1. **Overwrite `docs/handoff/latest.md`** — what changed, what still needs work, what to do next. Mandatory after every session.
 2. Run `npm run screenshot` — all 3 states + verification strip must be captured
 3. Run `npm run test:unit` and `npm run test:qa` — both must pass
-4. Commit everything to `staging`
-5. If approved for release: promote to `prod` using the workflow above
-6. Leave `staging` as the active branch with a clean working tree
+4. If stakeholder review is needed, run `npm run tunnel` and record the generated `https://...trycloudflare.com` URL in your session notes or handoff
+5. Commit everything to `staging`
+6. If approved for release: promote to `prod` using the workflow above
+7. Leave `staging` as the active branch with a clean working tree
 
 ---
 
@@ -96,7 +104,7 @@ If sync drift is suspected:
 | Layer | Location | Status |
 |---|---|---|
 | Local preview | `npm run dev` → `http://localhost:5173/` | Ready |
-| Stakeholder preview | `cloudflared tunnel --url http://localhost:5173` | On demand |
+| Stakeholder preview | `npm run tunnel` → generated `https://...trycloudflare.com` URL | On demand |
 | Production build | `npm run build && npm run preview` | Ready |
 | Source repo | `https://github.com/rbediner/canopy-exec-dashboard` | Live |
 | GitHub Pages (prod) | Deploys from `prod` branch via GitHub Actions in source repo | Enabled; waiting for first prod promotion with workflow files |
@@ -121,6 +129,7 @@ Key paths:
 - `public/canopy-logo.svg` — single source of truth for the logo
 - `design/wireframe-prototype.html` — layout reference
 - `design/exec-dashboard-prd.gdoc` — PRD shortcut
+- `package.json` — includes `npm run tunnel` for generating the staging review URL
 - `scripts/capture-dashboard-screenshots.mjs` — Puppeteer screenshot + verification strip script
 - `scripts/verify-dashboard.mjs` — dashboard QA verification script
 - `tests/dashboardData.test.mjs` — unit tests for dashboard data
