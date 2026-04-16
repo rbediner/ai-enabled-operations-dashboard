@@ -19,7 +19,7 @@ Do not touch code until you have read both.
 
 | Branch | Purpose |
 |---|---|
-| `staging` | Active development branch. GitHub Actions builds this branch and publishes the preview artifact to the separate preview repo. |
+| `staging` | Active development branch. Use this for local work and Cloudflare-based stakeholder review. |
 | `prod` | Release branch. Only promoted commits from `staging` land here. GitHub Pages deploys this branch as the eventual live site. |
 
 **Always work on `staging`. Never commit directly to `prod`.**
@@ -30,15 +30,14 @@ Do not touch code until you have read both.
 
 1. Make changes on `staging`
 2. Run `npm run screenshot` and visually verify all 3 states
-3. Push `staging` so GitHub Actions publishes the built preview to:
+3. Start the local dev server and share a Cloudflare tunnel for stakeholder review:
 
-```text
-https://github.com/rbediner/canopy-exec-dash-prt
-https://rbediner.github.io/canopy-exec-dash-prt/
+```bash
+npm run dev
+cloudflared tunnel --url http://localhost:5173
 ```
 
-4. Use that preview URL for stakeholder review
-5. Once approved, promote the exact tested commit to `prod`:
+4. Once approved, promote the exact tested commit to `prod`:
 
 ```bash
 git checkout prod
@@ -47,7 +46,7 @@ git push origin prod
 git checkout staging
 ```
 
-6. GitHub Actions will deploy `prod` to GitHub Pages automatically.
+5. GitHub Actions will deploy `prod` to GitHub Pages automatically.
 
 Source repo:
 
@@ -69,10 +68,11 @@ Open `http://localhost:5173/`
 
 ## Stakeholder Preview
 
-Push the `staging` branch and review the latest published preview at:
+Run the local dev server and share a Cloudflare tunnel:
 
-```text
-https://rbediner.github.io/canopy-exec-dash-prt/
+```bash
+npm run dev
+cloudflared tunnel --url http://localhost:5173
 ```
 
 ## Capture All Dashboard States (run every session)
@@ -111,4 +111,4 @@ npm run preview     # serve the build locally
 - Layout and box mapping follow `design/wireframe-prototype.html` exactly
 - Metric values follow the Google Doc PRD — do not substitute cleaner or greener numbers
 - This workspace lives in Google Drive — always follow the sync-drift SOP before editing from a second machine
-- `canopy-exec-dash-prt/` is no longer part of the workspace model; the preview now publishes from Actions to the separate preview repo
+- Cloudflare tunnel is the review path for `staging`; there is no separate preview repo in the active workflow
