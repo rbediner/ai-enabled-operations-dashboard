@@ -150,8 +150,9 @@ Key paths:
 
 ## Source of Truth
 
-1. **Product:** Google Doc PRD — `https://docs.google.com/document/d/14-eyti0nHkSi2bvVVovCS7WaUSIfHoT5f6SuoPC-eZg/edit`
-2. **Layout:** `design/wireframe-prototype.html`
-3. **Current state:** `docs/handoff/latest.md`
+1. **Product spec (authoritative):** `docs/PRD.md` — as-built PRD for the shipped prototype
+2. **Product spec (mirror):** Google Doc — `https://docs.google.com/document/d/14-eyti0nHkSi2bvVVovCS7WaUSIfHoT5f6SuoPC-eZg/edit`. Paste `docs/PRD.md` into this doc to keep it in sync. Do NOT delete `design/exec-dashboard-prd.gdoc`.
+3. **Layout:** `design/wireframe-prototype.html`
+4. **Current state:** `docs/handoff/latest.md`
 
-If any source conflicts with another, priority is: PRD > handoff doc > code.
+If two sources conflict, priority is: running code > `docs/PRD.md` > Google Doc > wireframe > handoff doc.

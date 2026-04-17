@@ -6,12 +6,13 @@ Local React/Vite prototype for the Canopy Management wall-mounted CEO dashboard.
 
 ## If you are an agent picking this up
 
-Read these two files first, in order:
+Read these three files first, in order:
 
-1. `docs/handoff/latest.md` — current project state, what changed, what to do next, full repo structure
+1. `docs/handoff/latest.md` — current project state, what changed, what to do next
 2. `docs/HANDOFF-SOP.md` — pickup checklist, branch model, release workflow, safe editing rules
+3. `docs/PRD.md` — as-built product spec (tile map, live behavior, acceptance criteria)
 
-Do not touch code until you have read both.
+Do not touch code until you have read all three.
 
 ### Hard rule for ALL agents: NEVER delete Google Doc (`.gdoc`) files
 

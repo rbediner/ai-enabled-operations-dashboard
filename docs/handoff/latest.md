@@ -30,3 +30,12 @@
 
 ## Exact Next Step
 - Commit the docs refresh on `staging`, push, fast-forward `prod`, push, then monitor the Pages deploy to green per SOP.
+
+## PRD Refresh (this session)
+- Added `docs/PRD.md` — new authoritative as-built PRD that reflects the shipped prototype. Supersedes the older Google Doc. Paste `docs/PRD.md` into the Google Doc at `https://docs.google.com/document/d/14-eyti0nHkSi2bvVVovCS7WaUSIfHoT5f6SuoPC-eZg/edit` to bring it in sync. Do not delete `design/exec-dashboard-prd.gdoc`.
+- Key drift corrected vs. original PRD:
+  - H1–H4 clarified: H1 = hero block; H2/H3/H4 = target ± controls (Lower / <lens> Target / Raise).
+  - R3 labeled "AI Gain" (not "AI Leverage"); AI Leverage remains the center M3 hero title.
+  - Responsive/iPad requirements replaced by uniform 1920×1080 `transform: scale(var(--dash-scale))` + centered `.app-shell`.
+  - Added fullscreen toggle as a 4th top-bar column.
+  - Added release monitoring to acceptance criteria; added `.gdoc` preservation to execution guardrails.
