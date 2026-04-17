@@ -144,6 +144,7 @@ Key paths:
 3. Do not substitute PRD numbers with cleaner or greener values
 4. If a second machine has already committed to `staging`, pull before making changes
 5. If a local file conflicts with the PRD, the PRD wins
+6. **NEVER delete, move, rename, or overwrite any `.gdoc` file.** Google Doc shortcut files (e.g. `design/*.gdoc`) point to canonical source-of-truth documents — losing one breaks the link to the real doc and git cannot recover it meaningfully. This rule applies to every agent, every session. When cleaning untracked files, exclude `*.gdoc` explicitly. If a `.gdoc` is in the way of a restructure, stop and ask the user.
 
 ---
 
