@@ -1,4 +1,4 @@
-# Canopy Dashboard Handoff
+# AI-Enabled Operations Dashboard — Handoff
 **Session date:** 2026-04-17
 
 ## Status

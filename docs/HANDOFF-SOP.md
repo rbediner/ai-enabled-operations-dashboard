@@ -1,4 +1,4 @@
-# Canopy Dashboard — Handoff SOP
+# AI-Enabled Operations Dashboard — Handoff SOP
 
 This project lives in a Google Drive synced folder and is version-controlled with Git.
 Follow this SOP whenever picking up work from another machine or another agent.
@@ -126,7 +126,7 @@ Key paths:
 - `src/components/` — purpose-built dashboard components
 - `src/styles.css` — complete V2.7 design system
 - `.github/workflows/deploy-pages.yml` — prod GitHub Pages deploy workflow
-- `public/canopy-logo.svg` — single source of truth for the logo
+- (no logo asset — T1 is a text wordmark rendered in `TopStatusBar.jsx`)
 - `design/wireframe-prototype.html` — layout reference
 - `design/exec-dashboard-prd.gdoc` — PRD shortcut
 - `package.json` — includes `npm run tunnel` for generating the staging review URL

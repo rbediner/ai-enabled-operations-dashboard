@@ -11,8 +11,8 @@ function TopStatusBar({ now, freshnessMinutes, activeLensLabel, statusCards, liv
     <header className="top-status-bar">
       <div className="logo-panel" data-box-id="T1">
         <div className="logo-panel__copy">
-          <span className="logo-panel__eyebrow">Executive</span>
-          <span className="logo-panel__name">Operating Screen</span>
+          <span className="logo-panel__eyebrow">AI-Enabled</span>
+          <span className="logo-panel__name">Operations Dashboard</span>
         </div>
       </div>
 

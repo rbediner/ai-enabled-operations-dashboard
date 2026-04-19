@@ -1,4 +1,4 @@
-# Executive Operating Screen PRD — As Built
+# AI-Enabled Operations Dashboard PRD — As Built
 
 > **Status:** This is the current source-of-truth PRD for the shipped prototype — a generic wall-mounted executive dashboard designed for a 16:9 TV. Fork it, swap the tile values in `src/data/dashboardData.js` for your own business, and deploy. Keep any `.gdoc` shortcuts in `design/` in place (never delete `.gdoc` files). Where this doc and older language disagree, this doc wins.
 
@@ -6,7 +6,7 @@
 
 ## 1. Read This First
 
-This document describes the Executive Operating Screen exactly as it runs today in `prod`. It is not an exploration — the prototype is shipped.
+This document describes the AI-Enabled Operations Dashboard exactly as it runs today in `prod`. It is not an exploration — the prototype is shipped.
 
 - **Stakeholder preview:** `npm run dev` + `npm run tunnel` → ephemeral `https://...trycloudflare.com` URL
 - **Production:** fork the repo, wire up GitHub Pages (or any static host), and promote commits from `staging` to `prod`.
@@ -94,7 +94,7 @@ All values in this table reflect the canonical base story in `src/data/dashboard
 
 | ID | Label | Value | State | Notes |
 |----|-------|-------|-------|-------|
-| T1 | Logo | Canopy Management lockup | — | Static |
+| T1 | Wordmark | "AI-Enabled / Operations Dashboard" text lockup | — | Static |
 | T2 | Time / Lens / LIVE | `DAY HH:MM`, "Lens: <lens>", "LIVE Nm ago" | — | Minute clock; LIVE heartbeat only persistent pulse on screen |
 | T3 | Pipeline Cov | `2.8x` | green | |
 | T4 | Margin Gap | `-5.8 pts` | yellow | |

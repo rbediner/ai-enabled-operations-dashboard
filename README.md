@@ -1,6 +1,6 @@
-# Executive Operating Screen
+# AI-Enabled Operations Dashboard
 
-React/Vite prototype for a wall-mounted CEO operating dashboard. Designed to run full-time on a 16:9 TV, with a fixed 1920×1080 canvas that scales uniformly to any viewport.
+React/Vite prototype of a wall-mounted executive operations dashboard. Designed to run full-time on a 16:9 TV, with a fixed 1920×1080 canvas that scales uniformly to any viewport.
 
 Free to fork, rebrand, and deploy. Swap the tile values in `src/data/dashboardData.js` to match your own business.
 
