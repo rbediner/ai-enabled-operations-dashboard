@@ -1,6 +1,8 @@
-# Canopy Management — Executive Operating Screen
+# Executive Operating Screen
 
-Local React/Vite prototype for the Canopy Management wall-mounted CEO dashboard.
+React/Vite prototype for a wall-mounted CEO operating dashboard. Designed to run full-time on a 16:9 TV, with a fixed 1920×1080 canvas that scales uniformly to any viewport.
+
+Free to fork, rebrand, and deploy. Swap the tile values in `src/data/dashboardData.js` to match your own business.
 
 ---
 
@@ -16,7 +18,7 @@ Do not touch code until you have read all three.
 
 ### Hard rule for ALL agents: NEVER delete Google Doc (`.gdoc`) files
 
-Files ending in `.gdoc` (e.g. `design/Canopy - Exec Dashboard - PRD Brief.gdoc`) are Google Drive shortcut files that point to canonical source-of-truth documents (PRDs, design briefs). They are tiny pointers, not the real content — if deleted, the link to the authoritative doc is lost and `git` cannot meaningfully recover it.
+Files ending in `.gdoc` (e.g. any `design/*.gdoc`) are Google Drive shortcut files that point to canonical source-of-truth documents (PRDs, design briefs). They are tiny pointers, not the real content — if deleted, the link to the authoritative doc is lost and `git` cannot meaningfully recover it.
 
 - Never run `rm`, `git rm`, or overwrite any path ending in `.gdoc`.
 - Never rename or move a `.gdoc` file without explicit user approval.
@@ -60,12 +62,6 @@ git checkout staging
 
 5. GitHub Actions will deploy `prod` to GitHub Pages automatically.
 
-Source repo:
-
-```text
-https://github.com/rbediner/canopy-exec-dashboard
-```
-
 ---
 
 ## Quick Start
@@ -99,10 +95,10 @@ Requires dev server running. Saves to `screenshots/`:
 
 | File | State |
 |---|---|
-| `canopy-dashboard-home.png` | M1 Margin — canonical |
-| `canopy-dashboard-state-revenue.png` | M2 Revenue tab |
-| `canopy-dashboard-state-ai.png` | M3 AI tab |
-| `canopy-dashboard-verification-strip.png` | Side-by-side review strip |
+| `dashboard-home.png` | M1 Margin — canonical |
+| `dashboard-state-revenue.png` | M2 Revenue tab |
+| `dashboard-state-ai.png` | M3 AI tab |
+| `dashboard-verification-strip.png` | Side-by-side review strip |
 
 ## Tests
 
@@ -130,7 +126,6 @@ npm run preview     # serve the build locally
 ## Notes
 
 - Layout and box mapping follow `design/wireframe-prototype.html` exactly
-- Metric values follow the Google Doc PRD — do not substitute cleaner or greener numbers
-- This workspace lives in Google Drive — always follow the sync-drift SOP before editing from a second machine
-- Cloudflare tunnel is the review path for `staging`; there is no separate preview repo in the active workflow
+- Canonical tile values live in `src/data/dashboardData.js` — swap them for your own business
+- Cloudflare tunnel (`npm run tunnel`) is the easiest way to share a live preview
 - **Never delete, move, rename, or overwrite any `.gdoc` file** — see the agent rule at the top of this README

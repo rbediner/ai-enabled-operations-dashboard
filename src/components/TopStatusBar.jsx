@@ -1,7 +1,6 @@
 function TopStatusBar({ now, freshnessMinutes, activeLensLabel, statusCards, liveSignalId, isFullscreen, onToggleFullscreen }) {
   const day = now.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
   const time = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-  const logoSrc = `${import.meta.env.BASE_URL}canopy-logo.svg`;
 
   const stateClass = { green: 's-green', yellow: 's-yellow', red: 's-red' };
   const freshnessClasses = liveSignalId === 'T2'
@@ -11,10 +10,9 @@ function TopStatusBar({ now, freshnessMinutes, activeLensLabel, statusCards, liv
   return (
     <header className="top-status-bar">
       <div className="logo-panel" data-box-id="T1">
-        <img src={logoSrc} alt="Canopy Management" className="logo-panel__logo" />
         <div className="logo-panel__copy">
-          <span className="logo-panel__eyebrow">Operating</span>
-          <span className="logo-panel__name">Canopy Management</span>
+          <span className="logo-panel__eyebrow">Executive</span>
+          <span className="logo-panel__name">Operating Screen</span>
         </div>
       </div>
 

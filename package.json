@@ -1,10 +1,11 @@
 {
-  "name": "canopy-ceo-dashboard",
+  "name": "exec-operating-screen",
   "private": true,
   "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "tunnel": "cloudflared tunnel --url http://localhost:5173",
     "build": "vite build",
     "preview": "vite preview",
     "screenshot": "node scripts/capture-dashboard-screenshots.mjs",

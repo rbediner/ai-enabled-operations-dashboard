@@ -1,17 +1,15 @@
-# Canopy Dashboard PRD — As Built
+# Executive Operating Screen PRD — As Built
 
-> **Status:** This is the current source-of-truth PRD for the shipped prototype. It replaces the earlier exploratory PRD in Google Docs. Keep the `design/exec-dashboard-prd.gdoc` shortcut in place (never delete `.gdoc` files) and paste this content into the Google Doc to bring it back in sync. Where this doc and older language disagree, this doc wins.
+> **Status:** This is the current source-of-truth PRD for the shipped prototype — a generic wall-mounted executive dashboard designed for a 16:9 TV. Fork it, swap the tile values in `src/data/dashboardData.js` for your own business, and deploy. Keep any `.gdoc` shortcuts in `design/` in place (never delete `.gdoc` files). Where this doc and older language disagree, this doc wins.
 
 ---
 
 ## 1. Read This First
 
-This document describes the Canopy Management Executive Operating Screen exactly as it runs today in `prod`. It is not an exploration — the prototype is shipped and live at:
+This document describes the Executive Operating Screen exactly as it runs today in `prod`. It is not an exploration — the prototype is shipped.
 
-- **Live:** https://rbediner.github.io/canopy-exec-dashboard/
-- **Source:** https://github.com/rbediner/canopy-exec-dashboard
-- **Workspace:** Google Drive → `AI/Projects/Canopy Management`
 - **Stakeholder preview:** `npm run dev` + `npm run tunnel` → ephemeral `https://...trycloudflare.com` URL
+- **Production:** fork the repo, wire up GitHub Pages (or any static host), and promote commits from `staging` to `prod`.
 
 If a feature description in this document does not match the running dashboard, the running dashboard is right and this doc needs to be updated — not the other way around.
 
@@ -19,7 +17,7 @@ If a feature description in this document does not match the running dashboard, 
 
 ## 2. Product Purpose
 
-A high-fidelity functional prototype meant to run full-time on a wall-mounted 16:9 TV in Brian's office. In a single glance it must answer:
+A high-fidelity functional prototype meant to run full-time on a wall-mounted 16:9 TV in an executive's office. In a single glance it must answer:
 
 1. Are we creating enough demand?
 2. Are we closing good business?
@@ -28,8 +26,8 @@ A high-fidelity functional prototype meant to run full-time on a wall-mounted 16
 5. Is customer friction increasing?
 6. Is AI creating real leverage?
 
-**Primary user:** Brian (CEO / founder / visionary).
-**Secondary user:** Roman (COO-style operator; uses it to run cadence, surface risk, drive action).
+**Primary user:** a CEO / founder.
+**Secondary user:** a COO-style operator who uses it to run cadence, surface risk, and drive action.
 
 The story is spatial: **Left** = demand creation and conversion. **Center** = the core operating truth right now. **Right** = delivery capacity and customer risk. **Bottom** = targets and what to do next.
 
