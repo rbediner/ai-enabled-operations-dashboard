@@ -307,7 +307,7 @@ Deterministic scenario frames drive all live updates. No external data sources a
 2. `npm run screenshot` — visually verify M1, M2, M3.
 3. `npm run dev` + `npm run tunnel` for stakeholder review if needed.
 4. Fast-forward promote: `git checkout prod && git merge --ff-only staging && git push origin prod`.
-5. **Monitor the GitHub Pages deploy to success** (`gh run watch <id> --repo rbediner/canopy-exec-dashboard --exit-status`). A release is not done until the Action run is green AND the live URL serves the new build.
+5. **Monitor the GitHub Pages deploy to success** (`gh run watch <id> --repo rbediner/ai-enabled-operations-dashboard --exit-status`). A release is not done until the Action run is green AND the live URL serves the new build.
 6. Rewrite `docs/handoff/latest.md` with the new prod head, deploy status, and exact next step.
 
 ### 11.5 Acceptance (must all be true before calling a release done)

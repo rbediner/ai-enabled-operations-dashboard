@@ -1,131 +1,116 @@
 # AI-Enabled Operations Dashboard
 
-React/Vite prototype of a wall-mounted executive operations dashboard. Designed to run full-time on a 16:9 TV, with a fixed 1920×1080 canvas that scales uniformly to any viewport.
-
-Free to fork, rebrand, and deploy. Swap the tile values in `src/data/dashboardData.js` to match your own business.
+A free, open-source single-screen executive operations dashboard prototype. Designed to run full-time on a 16:9 TV, desktop, or tablet. Fully interactive — flip tiles, rotate center views, and trigger fullscreen from the status bar.
 
 ---
 
-## If you are an agent picking this up
+## What It Shows
 
-Read these three files first, in order:
+The dashboard brings demand, delivery, financial tension, customer pressure, and AI leverage into a single fixed-layout screen. It is structured around one spatial narrative:
 
-1. `docs/handoff/latest.md` — current project state, what changed, what to do next
-2. `docs/HANDOFF-SOP.md` — pickup checklist, branch model, release workflow, safe editing rules
-3. `docs/PRD.md` — as-built product spec (tile map, live behavior, acceptance criteria)
+- **Left** — demand generation and commercial quality. Pipeline health, conversion, and revenue forecast.
+- **Center** — the core truth of the business right now. Rotates between Margin, Revenue, and AI views.
+- **Right** — delivery efficiency and operational risk. Capacity pressure, onboarding friction, service health, and cycle time.
+- **Bottom** — target context and the current action signal.
 
-Do not touch code until you have read all three.
+### Center Views
 
-### Hard rule for ALL agents: NEVER delete Google Doc (`.gdoc`) files
-
-Files ending in `.gdoc` (e.g. any `design/*.gdoc`) are Google Drive shortcut files that point to canonical source-of-truth documents (PRDs, design briefs). They are tiny pointers, not the real content — if deleted, the link to the authoritative doc is lost and `git` cannot meaningfully recover it.
-
-- Never run `rm`, `git rm`, or overwrite any path ending in `.gdoc`.
-- Never rename or move a `.gdoc` file without explicit user approval.
-- When cleaning untracked files (`git clean`, etc.), exclude `*.gdoc`.
-- If a `.gdoc` file appears in the way of a restructure, stop and ask the user.
-
-This rule applies to every agent and every session. No exceptions.
-
----
-
-## Branch Model
-
-| Branch | Purpose |
+| View | What it shows |
 |---|---|
-| `staging` | Active development branch. Use this for local work and Cloudflare-based stakeholder review. |
-| `prod` | Release branch. Only promoted commits from `staging` land here. GitHub Pages deploys this branch as the eventual live site. |
-
-**Always work on `staging`. Never commit directly to `prod`.**
+| **Margin** | Operating margin, target, gap, trend, and the primary driver affecting performance |
+| **Revenue** | Revenue truth or forecast, target, gap, trend, and the commercial driver affecting results |
+| **AI** | Whether AI is producing measurable leverage, how far that is from target, and what is driving adoption or drag |
 
 ---
 
-## Release Workflow
+## Operating Principles
 
-1. Make changes on `staging`
-2. Run `npm run screenshot` and visually verify all 3 states
-3. Start the local dev server and share a Cloudflare tunnel for stakeholder review:
-
-```bash
-npm run dev
-npm run tunnel
-```
-
-4. Once approved, promote the exact tested commit to `prod`:
-
-```bash
-git checkout prod
-git merge --ff-only staging
-git push origin prod
-git checkout staging
-```
-
-5. GitHub Actions will deploy `prod` to GitHub Pages automatically.
+- One screen, one story
+- Numeric first, not status-language first
+- Show tension without clutter
+- Keep the center as the truth anchor
+- Treat AI as an operating signal, not a novelty
+- Make customer and service pressure visible as part of margin pressure
 
 ---
 
 ## Quick Start
 
 ```bash
-git checkout staging
+git clone https://github.com/rbediner/ai-enabled-operations-dashboard.git
+cd ai-enabled-operations-dashboard
 npm install
 npm run dev
 ```
 
 Open `http://localhost:5173/`
 
-## Stakeholder Preview
+The dashboard renders at a fixed 1920×1080 canvas, uniformly scaled to fit any viewport.
 
-Run the local dev server and share a Cloudflare tunnel:
+---
 
-```bash
-npm run dev
-npm run tunnel
+## Customize It
+
+All metric values and labels live in `src/data/dashboardData.js`. Swap them for your own business metrics to adapt the dashboard to your operating context.
+
+```
+src/data/dashboardData.js   ← tile values, labels, states
+src/styles.css               ← design system
+src/components/              ← individual dashboard tiles
 ```
 
-When `cloudflared` starts, copy the generated `https://...trycloudflare.com` URL and use that exact link for staging review.
+---
 
-## Capture All Dashboard States (run every session)
+## Build and Deploy
+
+```bash
+npm run build    # outputs to dist/
+npm run preview  # serve the build locally
+```
+
+The `prod` branch deploys to GitHub Pages automatically via `.github/workflows/deploy-pages.yml`.
+
+---
+
+## Capture Dashboard States
 
 ```bash
 npm run screenshot
 ```
 
-Requires dev server running. Saves to `screenshots/`:
+Requires dev server running. Saves PNG captures of all three center views to `screenshots/`.
 
-| File | State |
-|---|---|
-| `dashboard-home.png` | M1 Margin — canonical |
-| `dashboard-state-revenue.png` | M2 Revenue tab |
-| `dashboard-state-ai.png` | M3 AI tab |
-| `dashboard-verification-strip.png` | Side-by-side review strip |
+---
 
 ## Tests
 
 ```bash
 npm run test:unit   # unit tests for dashboardData
-npm run test:qa     # dashboard verification script
-```
-
-## Production Build
-
-```bash
-npm run build       # outputs to dist/ (gitignored)
-npm run preview     # serve the build locally
+npm run test:qa     # dashboard QA verification
 ```
 
 ---
 
-## Current Dashboard Capabilities
+## Use With Repomix
 
-- Fixed 1920×1080 (16:9) frame, uniformly scaled via a JS-computed `--dash-scale` CSS variable so the whole dashboard grows/shrinks together and stays centered in any viewport
-- Fullscreen toggle lives in the top status bar (4th column, next to the status badges); uses the browser Fullscreen API and letterboxes on non-16:9 displays
-- Center lens tabs (Margin / Revenue / AI) auto-cycle every 30s in passive wall mode; manual tab clicks pause auto-cycle for 90s; auto-cycle is suppressed while B11 presentation mode is active
-- Legibility pass: larger tab pills with rounded interactive treatment, bumped status-badge and hero typography, rail/control-tile back faces reduced to a single wrapped phrase with a 3-line clamp so no text overflows
+This repo is kept dashboard-only so you can package the full source with [Repomix](https://github.com/yamadashy/repomix) or similar tools without pulling unrelated website code.
+
+---
+
+## See It in Context
+
+This dashboard is featured as a public resource on [romanbediner.com](https://romanbediner.com/resources/ai-enabled-operations-dashboard/), where it runs embedded in a full resource page alongside context on the operating principles behind it.
+
+---
+
+## Design Reference
+
+`design/wireframe-prototype.html` — original layout wireframe. The live dashboard follows this mapping exactly.
+
+---
 
 ## Notes
 
-- Layout and box mapping follow `design/wireframe-prototype.html` exactly
-- Canonical tile values live in `src/data/dashboardData.js` — swap them for your own business
-- Cloudflare tunnel (`npm run tunnel`) is the easiest way to share a live preview
-- **Never delete, move, rename, or overwrite any `.gdoc` file** — see the agent rule at the top of this README
+- Layout and box mapping follow the wireframe exactly — tile IDs (`T1–T6`, `D1–D4`, `C1–C3`, `M1–M3`, `H1–H4`, `O1–O3`, `R1–R4`, `B1–B11`) match the PRD in `docs/PRD.md`
+- The fullscreen toggle is in the top status bar (4th column)
+- `design/*.gdoc` files are Google Drive shortcut pointers to canonical source documents — **never delete, move, or rename them**
