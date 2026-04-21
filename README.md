@@ -1,131 +1,102 @@
 # AI-Enabled Operations Dashboard
 
-React/Vite prototype of a wall-mounted executive operations dashboard. Designed to run full-time on a 16:9 TV, with a fixed 1920×1080 canvas that scales uniformly to any viewport.
-
-Free to fork, rebrand, and deploy. Swap the tile values in `src/data/dashboardData.js` to match your own business.
+A free, open-source single-screen operations dashboard prototype designed for leadership review. It brings demand, delivery, financial tension, customer pressure, and AI leverage into a single structured view that can run full-time on a 16:9 display, desktop, or tablet.
 
 ---
 
-## If you are an agent picking this up
+## What It Shows
 
-Read these three files first, in order:
+The dashboard follows one fixed operating story:
 
-1. `docs/handoff/latest.md` — current project state, what changed, what to do next
-2. `docs/HANDOFF-SOP.md` — pickup checklist, branch model, release workflow, safe editing rules
-3. `docs/PRD.md` — as-built product spec (tile map, live behavior, acceptance criteria)
+- **Left:** demand generation and commercial quality
+- **Center:** the core truth of the business right now
+- **Right:** delivery efficiency and operational risk
+- **Bottom:** target context and the current action signal
 
-Do not touch code until you have read all three.
-
-### Hard rule for ALL agents: NEVER delete Google Doc (`.gdoc`) files
-
-Files ending in `.gdoc` (e.g. any `design/*.gdoc`) are Google Drive shortcut files that point to canonical source-of-truth documents (PRDs, design briefs). They are tiny pointers, not the real content — if deleted, the link to the authoritative doc is lost and `git` cannot meaningfully recover it.
-
-- Never run `rm`, `git rm`, or overwrite any path ending in `.gdoc`.
-- Never rename or move a `.gdoc` file without explicit user approval.
-- When cleaning untracked files (`git clean`, etc.), exclude `*.gdoc`.
-- If a `.gdoc` file appears in the way of a restructure, stop and ask the user.
-
-This rule applies to every agent and every session. No exceptions.
+The center view rotates between Margin, Revenue, and AI, while the rest of the screen preserves the same operating narrative.
 
 ---
 
-## Branch Model
+## Operating Principles
 
-| Branch | Purpose |
-|---|---|
-| `staging` | Active development branch. Use this for local work and Cloudflare-based stakeholder review. |
-| `prod` | Release branch. Only promoted commits from `staging` land here. GitHub Pages deploys this branch as the eventual live site. |
-
-**Always work on `staging`. Never commit directly to `prod`.**
-
----
-
-## Release Workflow
-
-1. Make changes on `staging`
-2. Run `npm run screenshot` and visually verify all 3 states
-3. Start the local dev server and share a Cloudflare tunnel for stakeholder review:
-
-```bash
-npm run dev
-npm run tunnel
-```
-
-4. Once approved, promote the exact tested commit to `prod`:
-
-```bash
-git checkout prod
-git merge --ff-only staging
-git push origin prod
-git checkout staging
-```
-
-5. GitHub Actions will deploy `prod` to GitHub Pages automatically.
+- One screen, one story
+- Numeric first
+- Center the truth
+- Customer pressure visible
+- Clear action signals
+- AI as operating signal
 
 ---
 
 ## Quick Start
 
 ```bash
-git checkout staging
+git clone https://github.com/rbediner/ai-enabled-operations-dashboard.git
+cd ai-enabled-operations-dashboard
 npm install
 npm run dev
 ```
 
 Open `http://localhost:5173/`
 
-## Stakeholder Preview
+The dashboard runs on a fixed 1920×1080 canvas and scales proportionally to fit the viewport.
 
-Run the local dev server and share a Cloudflare tunnel:
+---
 
-```bash
-npm run dev
-npm run tunnel
+## Adapt It
+
+To customize the dashboard for your own business, start with:
+
+```
+src/data/dashboardData.js   ← metric values, labels, states
+src/components/             ← dashboard components
+src/styles.css              ← visual system and layout styling
 ```
 
-When `cloudflared` starts, copy the generated `https://...trycloudflare.com` URL and use that exact link for staging review.
+Replace the demo operating metrics with your own values and signals while preserving the overall screen story.
 
-## Capture All Dashboard States (run every session)
+---
 
-```bash
-npm run screenshot
-```
+## What's Included
 
-Requires dev server running. Saves to `screenshots/`:
-
-| File | State |
+| Path | Description |
 |---|---|
-| `dashboard-home.png` | M1 Margin — canonical |
-| `dashboard-state-revenue.png` | M2 Revenue tab |
-| `dashboard-state-ai.png` | M3 AI tab |
-| `dashboard-verification-strip.png` | Side-by-side review strip |
+| `src/` | Dashboard source code (React / Vite) |
+| `design/wireframe-prototype.html` | Original structural wireframe used to map the screen layout and information zones |
+| `docs/PRD.md` | Working product requirements document describing the shipped dashboard behavior |
+| `docs/HANDOFF-SOP.md` | Workflow and handoff guidance for maintaining the dashboard |
 
-## Tests
+---
+
+## Build
 
 ```bash
-npm run test:unit   # unit tests for dashboardData
-npm run test:qa     # dashboard verification script
+npm run build
+npm run preview
 ```
 
-## Production Build
+You can deploy the built dashboard to GitHub Pages or any static hosting environment.
+
+---
+
+## Screenshots and QA
 
 ```bash
-npm run build       # outputs to dist/ (gitignored)
-npm run preview     # serve the build locally
+npm run screenshot   # capture all center-view states
+npm run test:unit    # unit tests for dashboardData
+npm run test:qa      # dashboard verification script
 ```
 
 ---
 
-## Current Dashboard Capabilities
+## See It in Context
 
-- Fixed 1920×1080 (16:9) frame, uniformly scaled via a JS-computed `--dash-scale` CSS variable so the whole dashboard grows/shrinks together and stays centered in any viewport
-- Fullscreen toggle lives in the top status bar (4th column, next to the status badges); uses the browser Fullscreen API and letterboxes on non-16:9 displays
-- Center lens tabs (Margin / Revenue / AI) auto-cycle every 30s in passive wall mode; manual tab clicks pause auto-cycle for 90s; auto-cycle is suppressed while B11 presentation mode is active
-- Legibility pass: larger tab pills with rounded interactive treatment, bumped status-badge and hero typography, rail/control-tile back faces reduced to a single wrapped phrase with a 3-line clamp so no text overflows
+This dashboard is also featured as a public resource on [romanbediner.com](https://romanbediner.com/resources/ai-enabled-operations-dashboard/), where it appears in a dedicated artifact page with additional operating context.
+
+---
 
 ## Notes
 
-- Layout and box mapping follow `design/wireframe-prototype.html` exactly
-- Canonical tile values live in `src/data/dashboardData.js` — swap them for your own business
-- Cloudflare tunnel (`npm run tunnel`) is the easiest way to share a live preview
-- **Never delete, move, rename, or overwrite any `.gdoc` file** — see the agent rule at the top of this README
+- Tile IDs and screen mapping align with `design/wireframe-prototype.html` and `docs/PRD.md`
+- The fullscreen control lives inside the dashboard status bar
+- `design/*.gdoc` files are Google Drive shortcuts pointing to source-of-truth documents — never delete, move, or overwrite them
