@@ -292,10 +292,11 @@ function App() {
 
   useEffect(() => {
     function updateScale() {
-      const padding = document.fullscreenElement ? 0 : 24;
+      /* Reserve a true per-side safety inset so edge controls never shave in iframe mode. */
+      const safeInset = document.fullscreenElement ? 0 : 24;
       const scale = Math.min(
-        (window.innerWidth - padding) / 1920,
-        (window.innerHeight - padding) / 1080,
+        (window.innerWidth - (safeInset * 2)) / 1920,
+        (window.innerHeight - (safeInset * 2)) / 1080,
       );
       document.documentElement.style.setProperty('--dash-scale', String(scale));
     }

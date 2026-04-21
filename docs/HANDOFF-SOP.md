@@ -59,9 +59,9 @@ npm run dev
 6. GitHub Actions deploys to GitHub Pages automatically on push to `prod`
 7. **Monitor the deploy to completion — do not report release as done until it is green.** Use:
    ```bash
-   gh run watch <run-id> --repo rbediner/canopy-exec-dashboard --exit-status
+   gh run watch <run-id> --repo rbediner/ai-enabled-operations-dashboard --exit-status
    ```
-   or poll `gh run list --repo rbediner/canopy-exec-dashboard --limit 1`. If the run fails, diagnose with `gh run view <run-id> --log-failed`, fix the root cause (code, workflow file, or repo settings), re-run, and only report success once a run completes `success` AND `https://rbediner.github.io/canopy-exec-dashboard/` serves the new build.
+   or poll `gh run list --repo rbediner/ai-enabled-operations-dashboard --limit 1`. If the run fails, diagnose with `gh run view <run-id> --log-failed`, fix the root cause (code, workflow file, or repo settings), re-run, and only report success once a run completes `success` AND `https://rbediner.github.io/ai-enabled-operations-dashboard/` serves the new build.
 8. Overwrite `docs/handoff/latest.md` with the current session state, including whether a Cloudflare review URL was generated for that session, the final `prod` commit hash, and confirmation that the Pages deploy ran green.
 
 **Do not promote a commit to `prod` that has not been visually verified on staging.**
@@ -106,11 +106,11 @@ If sync drift is suspected:
 | Local preview | `npm run dev` → `http://localhost:5173/` | Ready |
 | Stakeholder preview | `npm run tunnel` → generated `https://...trycloudflare.com` URL | On demand |
 | Production build | `npm run build && npm run preview` | Ready |
-| Source repo | `https://github.com/rbediner/canopy-exec-dashboard` | Live |
+| Source repo | `https://github.com/rbediner/ai-enabled-operations-dashboard` | Live |
 | GitHub Pages (prod) | Deploys from `prod` branch via GitHub Actions in source repo | Enabled; waiting for first prod promotion with workflow files |
 
 ### One-Time GitHub Setup Still Required
-1. In `rbediner/canopy-exec-dashboard`, keep Pages set to `GitHub Actions`
+1. In `rbediner/ai-enabled-operations-dashboard`, keep Pages set to `GitHub Actions`
 2. Promote the first approved commit from `staging` to `prod`
 3. After that, pushes to `prod` will deploy the live site from the source repo Pages workflow
 
@@ -124,7 +124,7 @@ Key paths:
 - `src/App.jsx` — overall 16:9 screen composition
 - `src/data/dashboardData.js` — all metric values and labels
 - `src/components/` — purpose-built dashboard components
-- `src/styles.css` — complete V2.7 design system
+- `src/style-layer file` — complete V2.7 design system
 - `.github/workflows/deploy-pages.yml` — prod GitHub Pages deploy workflow
 - (no logo asset — T1 is a text wordmark rendered in `TopStatusBar.jsx`)
 - `design/wireframe-prototype.html` — layout reference
