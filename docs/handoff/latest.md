@@ -42,3 +42,17 @@ The website (`rbediner/romanbediner.com`) owns the live embedded experience goin
 ## Production Release Status
 - Pages deploy from the last promotion (`3a4852b`) ran green.
 - On the next code promotion, monitor with `gh run watch <run-id> --repo rbediner/ai-enabled-operations-dashboard --exit-status` before reporting done.
+
+---
+
+## Append-Only Note (2026-04-21)
+
+- Website hotfix context: romanbediner.com resources hub now marks the dashboard card as `Coming Soon` and disables the hub CTA link pending readiness.
+- Source dashboard repository remains unchanged functionally; this note is for cross-repo rollout awareness.
+
+---
+
+## Append-Only Note (2026-04-21, CTA visual lock)
+
+- Cross-repo note: website resources hub dashboard CTA disabled state was visually hardened to a grey pill for cache-resilient rendering.
+- No dashboard source behavior changed in this repository.
