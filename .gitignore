@@ -12,6 +12,23 @@ node_modules/
 
 # Editor / OS artifacts
 .DS_Store
+**/.DS_Store
 Thumbs.db
 *.swp
 *.swo
+*~
+.idea/
+.vscode/
+
+# Logs and debug output
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Tool / build caches (dist/ is intentionally tracked — see note above — do not add it here)
+.vite/
+node_modules/.vite/
+.cache/
+*.tmp
+*.temp
