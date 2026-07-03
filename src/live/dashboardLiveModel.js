@@ -1,3 +1,21 @@
+/**
+ * dashboardLiveModel — the pure "live" simulation layer for the exec dashboard.
+ *
+ * There is no backend. This module takes the locked base data in ../data/dashboardData.js
+ * and layers a deterministic, self-driving story on top of it so a wall-mounted screen
+ * always looks alive:
+ *   - buildSimulatedDashboard(frameIndex, focusIndex) produces a full dashboard snapshot
+ *     for a given scenario frame (scenarioFrames) and Focus Now line (focusNowSequence).
+ *   - The App component owns the timers/clock; every function here is pure (no side effects,
+ *     no React) so it stays trivially testable — see tests/dashboardData.test.mjs.
+ *
+ * Tile IDs encode their region by prefix: T = top status bar, D = left rail, C = left stack,
+ * O = right stack, R = right rail, B = bottom strip. The `*-hero` id is the center dial for a
+ * given lens tab (e.g. `M1-hero`). getMetricItem() maps a prefix back to its data location.
+ *
+ * All timing constants are milliseconds and exported so App.jsx and tests share one source
+ * of truth.
+ */
 import {
   bottomStrip as baseBottomStrip,
   centerViews as baseCenterViews,
@@ -8,33 +26,44 @@ import {
   statusCards as baseStatusCards,
 } from '../data/dashboardData.js';
 
-export const VISUAL_CADENCE_MS = 4_000;
-export const SIMULATED_RECOMPUTE_MS = 24_000;
-export const FRESHNESS_MINUTE_MS = 60_000;
-export const FOCUS_NOW_ROTATE_MS = 30_000;
-export const FLIP_DWELL_MS = 3_200;
-export const OVERRIDE_HOLD_MS = 2_000;
-export const OVERRIDE_WINDOW_MS = 10_000;
-export const INITIAL_NOW = '2026-04-16T09:00:00-04:00';
+// --- Cadence timing (ms) -----------------------------------------------------
+export const VISUAL_CADENCE_MS = 4_000;        // tick that drives region-by-region micro-refreshes
+export const SIMULATED_RECOMPUTE_MS = 24_000;  // advance to the next scenario frame + bump freshness
+export const FRESHNESS_MINUTE_MS = 60_000;     // one "minute" of the freshness counter
+export const FOCUS_NOW_ROTATE_MS = 30_000;     // how often the Focus Now line rotates
+export const FLIP_DWELL_MS = 3_200;            // how long a flipped tile shows its back face
+export const OVERRIDE_HOLD_MS = 2_000;         // quiet window after a priority override lands
+export const OVERRIDE_WINDOW_MS = 10_000;      // minimum spacing between priority overrides
+export const INITIAL_NOW = '2026-04-16T09:00:00-04:00'; // fixed clock seed for deterministic first paint
 
+// Round-robin order the visual cadence walks through, one region per VISUAL_CADENCE_MS tick.
 export const VISUAL_REGION_ORDER = ['top', 'left', 'center', 'right', 'bottom'];
+// Per-region rotation of which tile refreshes next; index advances once per full region lap.
 export const TOP_SIGNAL_SEQUENCE = ['T2', 'T3', 'T4', 'T5', 'T6'];
 export const LEFT_SIGNAL_SEQUENCE = ['D2', 'C1', 'D3', 'D4', 'D1', 'C2', 'C3'];
 export const RIGHT_SIGNAL_SEQUENCE = ['R1', 'O3', 'R4', 'R2', 'R3', 'O1', 'O2'];
 export const BOTTOM_SIGNAL_SEQUENCE = ['B6', 'B4', 'B7', 'B8', 'B9', 'B5', 'B3'];
 
+// --- Tile capability allow-lists --------------------------------------------
+// Tiles that can flip to a back face (auto or on click).
 export const FLIP_ELIGIBLE_TILE_IDS = ['D1', 'D2', 'D4', 'R2', 'R3', 'R4', 'B7', 'B8', 'B9'];
+// Tiles whose color is driven by threshold state (green/yellow/red).
 export const THRESHOLD_COLOR_TILE_IDS = ['T3', 'T4', 'T5', 'T6', 'D3', 'C1', 'O1', 'O3', 'R1', 'R2', 'R3', 'R4', 'B4', 'B5', 'B7', 'B8', 'B9'];
+// Tiles whose label text (not just value) may change between frames.
 export const LABEL_MUTABLE_TILE_IDS = ['T2', 'B6'];
+// Tiles important enough to jump the cadence queue when they worsen — see detectPriorityOverride.
 export const PRIORITY_OVERRIDE_TILE_IDS = ['R1', 'T5', 'C1', 'B6'];
+// Motion classes suppressed while presentation mode is on (keeps the screen calm on stage).
 export const NON_ESSENTIAL_MOTION_DISABLED_IN_PRESENTATION = ['heroGlow', 'regionRefresh', 'tileFlip'];
 
+// Which flip-eligible tiles belong to each region, so the visual cadence can flip one per lap.
 const REGION_FLIP_TARGETS = {
   left: ['D1', 'D2', 'D4'],
   right: ['R2', 'R3', 'R4'],
   bottom: ['B7', 'B8', 'B9'],
 };
 
+// Per-tile auto-flip spacing (ms). Staggered/coprime-ish so tiles never all flip in unison.
 const AUTO_FLIP_INTERVALS = {
   D1: 20_000,
   D2: 24_000,
@@ -47,12 +76,16 @@ const AUTO_FLIP_INTERVALS = {
   B9: 34_000,
 };
 
+// The Focus Now tile rotates through these lines on the FOCUS_NOW_ROTATE_MS cadence.
 const focusNowSequence = [
   { value: 'Margin + Capacity', subtext: '3 priority actions', emphasis: 'alert' },
   { value: 'Client Friction + SLA', subtext: '2 actions to recover', emphasis: 'alert' },
   { value: 'Forecast + Cash Conv', subtext: '3 actions to close gap', emphasis: 'alert' },
 ];
 
+// Each scenario frame is a sparse patch over the base data: only the fields that move between
+// frames are listed. SIMULATED_RECOMPUTE_MS advances through these, wrapping at the end, so the
+// story loops seamlessly. buildSimulatedDashboard applies one frame on top of a fresh base clone.
 const scenarioFrames = [
   {
     statusCards: {
@@ -221,6 +254,8 @@ const scenarioFrames = [
   },
 ];
 
+// Deep copy of the locked base data. structuredClone keeps each snapshot independent so
+// mutating one frame's tiles can never leak back into the shared base objects.
 function cloneBaseDashboard() {
   return {
     statusCards: structuredClone(baseStatusCards),
@@ -246,6 +281,9 @@ function patchArrayById(items, patchMap) {
   });
 }
 
+// Resolve a tile id to its live object inside a dashboard snapshot, using the id prefix to
+// pick the right collection. T2 has no backing data object (it is a label-only freshness tile),
+// so a stub is returned. Returns undefined for unknown ids.
 function getMetricItem(dashboard, tileId) {
   if (tileId.startsWith('T')) {
     return tileId === 'T2'
@@ -295,6 +333,8 @@ function setMetricItem(dashboard, tileId, nextValue) {
   }
 }
 
+// Build a complete dashboard snapshot for a given scenario frame and Focus Now line.
+// Wraps both indices, so callers can pass an ever-incrementing step counter safely.
 export function buildSimulatedDashboard(frameIndex = 0, focusIndex = 0) {
   const dashboard = cloneBaseDashboard();
   const frame = scenarioFrames[frameIndex % scenarioFrames.length];
@@ -330,6 +370,8 @@ export function getFreshnessMinutes(nowMs, lastRefreshMs) {
   return Math.max(0, Math.floor((nowMs - lastRefreshMs) / FRESHNESS_MINUTE_MS));
 }
 
+// Map a visual-cadence step to the region being touched this tick and the specific tile within
+// it. Region rotates every tick (VISUAL_REGION_ORDER); the per-region tile advances once per lap.
 export function getVisualCadenceSlot(step, activeTab) {
   const region = VISUAL_REGION_ORDER[step % VISUAL_REGION_ORDER.length];
   const lap = Math.floor(step / VISUAL_REGION_ORDER.length);
@@ -401,6 +443,8 @@ export function getMetricState(dashboard, tileId, activeTab) {
   return getMetricItem(dashboard, tileId);
 }
 
+// True when a tile's data differs between the currently displayed snapshot and the pending
+// target — the cadence only animates a tile when there is actually something new to show.
 export function hasTileChanged(currentDashboard, targetDashboard, tileId, activeTab) {
   const currentValue = getMetricState(currentDashboard, tileId, activeTab);
   const targetValue = getMetricState(targetDashboard, tileId, activeTab);
@@ -408,6 +452,9 @@ export function hasTileChanged(currentDashboard, targetDashboard, tileId, active
   return JSON.stringify(currentValue) !== JSON.stringify(targetValue);
 }
 
+// Return a new snapshot with exactly one tile advanced from current toward target, leaving every
+// other tile untouched. This is what makes the board update one region at a time instead of all
+// at once. The hero (center dial) is copied wholesale since it is a composite view object.
 export function applyScheduledTileUpdate(currentDashboard, targetDashboard, tileId, activeTab) {
   const nextDashboard = structuredClone(currentDashboard);
 
@@ -448,6 +495,10 @@ function hasMajorForecastDrop(currentItem, nextItem) {
   return Number.isFinite(currentValue) && Number.isFinite(nextValue) && (currentValue - nextValue) >= 12;
 }
 
+// Look for a high-importance tile that just got worse and should jump the cadence queue so an
+// executive never waits a full lap to see bad news. C1 (forecast) triggers on a large numeric
+// drop; the others trigger when their threshold state escalates (e.g. yellow -> red). Returns the
+// first matching tile id in PRIORITY_OVERRIDE_TILE_IDS priority order, or null.
 export function detectPriorityOverride(currentDashboard, targetDashboard) {
   const candidates = PRIORITY_OVERRIDE_TILE_IDS.filter((tileId) => {
     const currentItem = getMetricItem(currentDashboard, tileId);
@@ -467,6 +518,10 @@ export function detectPriorityOverride(currentDashboard, targetDashboard) {
   return candidates[0] ?? null;
 }
 
+// Pick a tile to auto-flip this tick, or null. A tile qualifies only when it belongs to the
+// region being visited, its per-tile timer (nextAutoFlipAt) is due, and it is not mid-update
+// (flipping while data changes would look glitchy). Suppressed entirely in presentation mode or
+// when another flip is already in flight, so at most one tile is ever flipped at a time.
 export function getAutoFlipTargetId(step, activeTab, currentDashboard, targetDashboard, nowMs, nextAutoFlipAt, presentationMode, hasActiveFlip) {
   if (presentationMode || hasActiveFlip) {
     return null;
