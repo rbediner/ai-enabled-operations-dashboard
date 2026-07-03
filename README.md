@@ -6,6 +6,20 @@ A free, open-source single-screen operations dashboard prototype for leadership 
 
 ---
 
+## Architecture
+
+A single-page React 18 app built with Vite 5 (`@vitejs/plugin-react`, native ESM, plain JSX — no TypeScript). It has only two runtime dependencies (`react`, `react-dom`); Puppeteer is dev-only, used for screenshots and QA. It renders one fixed **1920×1080** canvas that never reflows — `App.jsx` computes a uniform `--dash-scale` CSS variable on resize/fullscreen so the whole screen scales as one unit to fit any viewport.
+
+**Layout / composition** — `src/main.jsx` mounts `App.jsx`, which composes the five screen zones as sibling components: `TopStatusBar`, `LeftRail` + `LeftStack`, the center column (`CenterViewTabs` + `HeroMarginDial`), `RightStack` + `RightRail`, and `BottomControlStrip`. All visual styling lives in `src/styles.css`.
+
+**Data model** — `src/data/dashboardData.js` holds the locked base business story: exported arrays/objects keyed by tile ID (`T*`, `D*`, `C*`, `O*`, `R*`, `B*`, plus `centerViews` M1/M2/M3 and `lensTabs`). This is the single source of truth for values, labels, and green/yellow/red states.
+
+**Live model** — `src/live/dashboardLiveModel.js` is a pure module (no React) that layers ambient motion on top of the base data. It defines cadence constants, predefined `scenarioFrames`, and functions to build a simulated dashboard, schedule per-region tile refreshes, detect priority overrides, and drive tile flips. `App.jsx` holds all state and timers and calls into this model; `src/live/useAnimatedNumber.js` provides smooth numeric transitions. State flows one way: base data → simulated target dashboard → displayed dashboard → props to components.
+
+**Build / run / deploy** — `npm run dev` (Vite dev server on :5173), `npm run build` → static `dist/`, `npm run preview` to serve it. Tests: `npm run test:unit` (Node test runner over `dashboardData`) and `npm run test:qa` (Puppeteer render check). Vite `base` is `/ai-enabled-operations-dashboard/` because the build is embedded under that path on the main site. CI (`.github/workflows/deploy-pages.yml`) builds and publishes `dist/` to GitHub Pages on push to the `prod` branch (this working branch is `staging`).
+
+---
+
 ## Screen Layout
 
 The dashboard is a fixed 1920×1080 canvas that scales proportionally to fit any viewport. It never reflows — it shrinks and grows as one unit.
@@ -146,3 +160,11 @@ npm run test:qa      # verify dashboard renders and tiles are present
 ## See It in Context
 
 Live on [romanbediner.com](https://romanbediner.com/resources/ai-enabled-operations-dashboard/) with additional operating context.
+
+## Google Drive drift
+
+This repository is checked out inside Google Drive and synced across machines. Google Drive creates conflict-copies (filenames ending in ` 2`, ` 3`, or ` (1)`) — including inside `.git` — which corrupt the repo. A guardrail auto-removes them:
+
+- `scripts/clean-drive-drift.sh --fix` — remove conflict-copies then verify with `git fsck` (`--check` to only report).
+- Runs automatically via git hooks (`pre-commit`, `post-merge`, `post-checkout`) and, for Claude, on session start via `.claude/settings.json`.
+- Never commit a file whose name ends in ` 2`/` 3` — it is Google Drive junk, not a real file.
