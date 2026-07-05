@@ -64,7 +64,10 @@ if [ "$MODE" != "fix" ]; then
   exit 1
 fi
 
-for f in "${found[@]}"; do rm -rf "$f"; done
+for f in "${found[@]}"; do
+  git rm -r --cached --ignore-unmatch --quiet -- "$f" >/dev/null 2>&1 || true
+  rm -rf "$f"
+done
 echo "clean-drive-drift: removed $n conflict-copy path(s)."
 
 # Verify .git integrity after touching object/ref files. --no-dangling hides the
