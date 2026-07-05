@@ -30,6 +30,27 @@ import {
   isFlipEligible,
 } from './live/dashboardLiveModel.js';
 
+/**
+ * App — the single stateful component that drives the whole dashboard.
+ *
+ * All the pure "what should the board look like" logic lives in ./live/dashboardLiveModel.js.
+ * App's only job is orchestration: own the React state, run the timers, and translate the model's
+ * decisions into state updates. There is no server — everything is a self-driving simulation meant
+ * to run unattended on a wall display.
+ *
+ * State falls into a few groups:
+ *   - Clock / freshness: clockNow, lastRefreshMs.
+ *   - Cadence counters that timers advance: scenarioStep, focusStep, visualStep.
+ *   - The two dashboards: displayDashboard is what's on screen; targetDashboard is where it's
+ *     heading. Timers migrate one tile at a time from target into display (see the live model),
+ *     which is what makes the board update region-by-region instead of all at once.
+ *   - Presentation/fullscreen flags and transient flip/hover/live-signal state.
+ *
+ * Why the *Ref mirrors below: several timers are created once (empty deps) but need the latest
+ * value of state they don't want to re-subscribe to. Each ref mirrors a piece of state via a tiny
+ * effect so those long-lived timer callbacks can read current values without being torn down and
+ * recreated on every change.
+ */
 function App() {
   const initialTimestamp = new Date(INITIAL_NOW).getTime();
   const [activeTab, setActiveTab] = useState('M1');
@@ -46,12 +67,15 @@ function App() {
   const [flipStates, setFlipStates] = useState({});
   const [hoveredTileId, setHoveredTileId] = useState(null);
 
-  const lastOverrideAtRef = useRef(Number.NEGATIVE_INFINITY);
-  const suppressUntilRef = useRef(Number.NEGATIVE_INFINITY);
-  const tabCyclePauseUntilRef = useRef(0);
-  const flipTimersRef = useRef({});
-  const nextAutoFlipAtRef = useRef({});
-  const processedVisualStepRef = useRef(Number.NEGATIVE_INFINITY);
+  // Timing bookkeeping (not mirrors of state):
+  const lastOverrideAtRef = useRef(Number.NEGATIVE_INFINITY); // when the last priority override fired
+  const suppressUntilRef = useRef(Number.NEGATIVE_INFINITY);  // hold quiet after an override until this ms
+  const tabCyclePauseUntilRef = useRef(0);                    // pause auto tab-cycling after manual interaction
+  const flipTimersRef = useRef({});                           // tileId -> pending setTimeout for flip release
+  const nextAutoFlipAtRef = useRef({});                       // tileId -> earliest ms it may auto-flip again
+  const processedVisualStepRef = useRef(Number.NEGATIVE_INFINITY); // guard so each visualStep runs once
+
+  // Live mirrors of state, kept in sync by the effects below, so once-created timers read fresh values.
   const displayDashboardRef = useRef(displayDashboard);
   const targetDashboardRef = useRef(targetDashboard);
   const activeTabRef = useRef(activeTab);
@@ -88,10 +112,10 @@ function App() {
   }, [hoveredTileId]);
 
   useEffect(() => {
-    /* Time and freshness are minute-based surfaces, not second-by-second clocks. */
+    /* Wall clock: tick every second so the header time and freshness counter stay current. */
     const minuteTimer = window.setInterval(() => {
-      setClockNow((previous) => new Date(previous.getTime() + 60_000));
-    }, 60_000);
+      setClockNow(new Date());
+    }, 1_000);
 
     return () => window.clearInterval(minuteTimer);
   }, []);
@@ -110,6 +134,10 @@ function App() {
   }, [scenarioStep]);
 
   useEffect(() => {
+    /* Scenario engine: every SIMULATED_RECOMPUTE_MS advance to the next frame and set it as the
+       new target. If the new frame makes a high-priority tile worse, apply that one tile to the
+       display immediately (subject to the override spacing/hold windows) so bad news jumps the
+       cadence queue; everything else drips in one tile at a time via the visual cadence effect. */
     const recomputeTimer = window.setInterval(() => {
       setScenarioStep((previous) => {
         const nextStep = (previous + 1) % getScenarioFrameCount();
@@ -137,6 +165,7 @@ function App() {
   }, []);
 
   useEffect(() => {
+    /* The "live" highlight on a tile is a brief pulse: clear it ~900ms after it is set. */
     const signalTimer = window.setTimeout(() => {
       setLiveSignalId(null);
     }, 900);
@@ -154,6 +183,8 @@ function App() {
   }, []);
 
   useEffect(() => {
+    /* Heartbeat for region-by-region motion: just increments visualStep every VISUAL_CADENCE_MS.
+       The effect below reacts to each new step and decides what (if anything) to animate. */
     const cadenceTimer = window.setInterval(() => {
       setVisualStep((previous) => previous + 1);
     }, VISUAL_CADENCE_MS);
@@ -162,6 +193,9 @@ function App() {
   }, []);
 
   useEffect(() => {
+    /* React to one visual-cadence tick: either flip a due tile in the current region, or migrate
+       the next changed tile from target into display. Guarded to run once per step, skipped during
+       the post-override quiet window, and never flips while an override just landed. */
     if (visualStep < 0) {
       return;
     }
@@ -292,10 +326,11 @@ function App() {
 
   useEffect(() => {
     function updateScale() {
-      const padding = document.fullscreenElement ? 0 : 24;
+      /* Reserve a true per-side safety inset so edge controls never shave in iframe mode. */
+      const safeInset = document.fullscreenElement ? 0 : 24;
       const scale = Math.min(
-        (window.innerWidth - padding) / 1920,
-        (window.innerHeight - padding) / 1080,
+        (window.innerWidth - (safeInset * 2)) / 1920,
+        (window.innerHeight - (safeInset * 2)) / 1080,
       );
       document.documentElement.style.setProperty('--dash-scale', String(scale));
     }

@@ -2,7 +2,8 @@
 node_modules/
 
 # Build output
-dist/
+# Dist is intentionally tracked in this repo because release artifacts package
+# /ai-enabled-operations-dashboard/ from committed output files.
 
 # Local env files
 .env
@@ -11,6 +12,29 @@ dist/
 
 # Editor / OS artifacts
 .DS_Store
+**/.DS_Store
 Thumbs.db
 *.swp
 *.swo
+*~
+.idea/
+.vscode/
+
+# Logs and debug output
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Tool / build caches (dist/ is intentionally tracked — see note above — do not add it here)
+.vite/
+node_modules/.vite/
+.cache/
+*.tmp
+*.temp
+
+# .claude/ holds machine-local Claude Code config. settings.local.json carries
+# personal permission overrides and must stay untracked, but settings.json
+# (the Drive-drift SessionStart hook) has no secrets and must be shared.
+.claude/*
+!.claude/settings.json
