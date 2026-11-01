@@ -10,5 +10,17 @@
       "reason": "production deploys from the prod branch by design; the workflow header says never widen the trigger",
       "expires": "2027-01-31"
     }
-  ]
+  ],
+  "branch_hygiene": {
+    "allowed_branches": [
+      "staging",
+      "claude/*",
+      "codex/*",
+      "estate5/*",
+      "ci-standard-install",
+      "prod"
+    ],
+    "janitor_workflow": "branch-janitor.yml",
+    "release_gate": ""
+  }
 }
