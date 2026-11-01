@@ -3,5 +3,12 @@
   "release_branches": [],
   "deploy_workflows": [],
   "weekly_minute_budget": 300,
-  "exceptions": []
+  "exceptions": [
+    {
+      "rule": "CI001",
+      "file": "deploy-pages.yml",
+      "reason": "production deploys from the prod branch by design; the workflow header says never widen the trigger",
+      "expires": "2027-01-31"
+    }
+  ]
 }
